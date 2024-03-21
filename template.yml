@@ -10,7 +10,7 @@ Globals:
     EndpointConfiguration: REGIONAL
 
 Resources:
-  ShortUrlReservationService:
+  ShortUrlMappingService:
     Type: AWS::Serverless::Function
     Properties:
       Handler: com.richarddklein.shorturlmappingservice.StreamLambdaHandler::handleRequest
@@ -26,10 +26,7 @@ Resources:
         # Read permission for SSM Parameter Store.
         - SSMParameterWithSlashPrefixReadPolicy:
             ParameterName:
-              /shortUrl/range
-        - SSMParameterWithSlashPrefixReadPolicy:
-            ParameterName:
-              /shortUrl/tableName
+              /shortUrl/mappings/tableName
       SnapStart:
         ApplyOn: "PublishedVersions"
 

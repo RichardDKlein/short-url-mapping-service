@@ -48,15 +48,15 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
             shortUrlMappingService.initializeShortUrlMappingRepository();
             StatusResponse response = new StatusResponse(
                     ShortUrlMappingStatus.SUCCESS,
-                    "Initialization of Short URL Reservation table "
+                    "Initialization of Short URL Mapping table "
                             + "completed successfully");
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
             StatusResponse response = new StatusResponse(
                     ShortUrlMappingStatus.NOT_ON_LOCAL_MACHINE,
-                    "Initialization of the Short URL Reservation "
-                            + "table can be done only when the service is "
-                            + "running on your local machine");
+                    "Initialization of the Short URL Mapping table "
+                            + "can be done only when the service is running "
+                            + "on your local machine");
             return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
         }
     }
