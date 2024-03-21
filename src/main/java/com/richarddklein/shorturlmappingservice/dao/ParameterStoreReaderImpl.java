@@ -15,14 +15,11 @@ import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
  */
 @Component
 public class ParameterStoreReaderImpl implements ParameterStoreReader {
-    private static final String SHORT_URL_RANGE = "/shortUrl/range";
-    private static final String SHORT_URL_MAPPING_TABLE_NAME = "/shortUrl/tableName";
+    private static final String SHORT_URL_MAPPING_TABLE_NAME = "/shortUrl/mappings/tableName";
 
     private final SsmClient ssmClient;
 
     private String shortUrlMappingTableName;
-    private long minShortUrlBase10;
-    private long maxShortUrlBase10;
 
     /**
      * General constructor.
@@ -40,24 +37,10 @@ public class ParameterStoreReaderImpl implements ParameterStoreReader {
         return shortUrlMappingTableName;
     }
 
-    @Override
-    public long getMinShortUrlBase10() {
-        return minShortUrlBase10;
-    }
-
-    @Override
-    public long getMaxShortUrlBase10() {
-        return maxShortUrlBase10;
-    }
-
     /**
      * Load all parameters from the Parameter Store.
      */
     private void loadParameters() {
-        String shortUrlRange = getParameter(SHORT_URL_RANGE);
-        String[] tokens = shortUrlRange.split(",\\s*");
-        minShortUrlBase10 = Long.parseLong(tokens[0]);
-        maxShortUrlBase10 = Long.parseLong(tokens[1]);
         shortUrlMappingTableName = getParameter(SHORT_URL_MAPPING_TABLE_NAME);
     }
 

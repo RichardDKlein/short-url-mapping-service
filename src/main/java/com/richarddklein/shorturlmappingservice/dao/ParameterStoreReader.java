@@ -21,22 +21,4 @@ public interface ParameterStoreReader {
      * database.
      */
     String getShortUrlMappingTableName();
-
-    /**
-     * Get the minimum short URL, in base-10 representation.
-     *
-     * @return The base-10 representation of the minimum value of the
-     * range of short URLs that are to be stored in the Short URL Reservation
-     * table in the DynamoDB database.
-     */
-    long getMinShortUrlBase10();
-
-    /**
-     * Get the maximum short URL, in base-10 representation.
-     *
-     * @return The base-10 representation of the maximum value of the
-     * range of short URLs that are to be stored in the Short URL Reservation
-     * table in the DynamoDB database.
-     */
-    long getMaxShortUrlBase10();
 }

@@ -17,7 +17,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecon
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 /**
- * The Entity corresponding to an item in the Short URL Mappings
+ * The Entity corresponding to an item in the Short URL Mapping
  * table in AWS DynamoDB.
  */
 @DynamoDbBean
@@ -29,10 +29,10 @@ public class ShortUrlMapping {
     private String shortUrl;
 
     /**
-     * The `isAvailable` attribute. See the `ShortUrlMappingDaoImpl`
+     * The `longUrl` attribute. See the `ShortUrlMappingDaoImpl`
      * Javadoc for a detailed description of this attribute.
      */
-    private String isAvailable;
+    private String longUrl;
 
     /**
      * The `version` attribute. See the `ShortUrlMappingDaoImpl`
@@ -52,29 +52,29 @@ public class ShortUrlMapping {
      * General constructor #1.
      *
      * Construct a Short URL Mapping entity from parameters specifying
-     * the value of the `shortUrl` and `isAvailable` attributes.
+     * the value of the `shortUrl` and `longUrl` attributes.
      *
      * @param shortUrl The value of the `shortUrl` attribute.
-     * @param isAvailable The value of the `isAvailable` attribute.
+     * @param longUrl The value of the `longUrl` attribute.
      */
-    public ShortUrlMapping(String shortUrl, String isAvailable) {
+    public ShortUrlMapping(String shortUrl, String longUrl) {
         this.shortUrl = shortUrl;
-        this.isAvailable = isAvailable;
+        this.longUrl = longUrl;
     }
 
     /**
      * General constructor #2.
      *
      * Construct a Short URL Mapping entity from a Map containing
-     * entries that specify the values of the `shortUrl` and `isAvailable`
+     * entries that specify the values of the `shortUrl` and `longUrl`
      * attributes.
      *
      * @param item The Map containing the entries that specify the values
-     *             of the `shortUrl` and `isAvailable` attributes.
+     *             of the `shortUrl` and `longUrl` attributes.
      */
     public ShortUrlMapping(Map<String, AttributeValue> item) {
         shortUrl = item.get("shortUrl").s();
-        isAvailable = item.get("isAvailable").s();
+        longUrl = item.get("longUrl").s();
     }
 
     @DynamoDbPartitionKey
@@ -86,32 +86,14 @@ public class ShortUrlMapping {
         this.shortUrl = shortUrl;
     }
 
-    @DynamoDbAttribute("isAvailable")
-    @DynamoDbSecondaryPartitionKey(indexNames = "isAvailable-index")
-    public String getIsAvailable() {
-        return isAvailable;
+    @DynamoDbAttribute("longUrl")
+    @DynamoDbSecondaryPartitionKey(indexNames = "longUrl-index")
+    public String getLongUrl() {
+        return longUrl;
     }
 
-    public void setIsAvailable(String isAvailable) {
-        this.isAvailable = isAvailable;
-    }
-
-    /**
-     * Is this Short URL Mapping entity really available?
-     *
-     * This is a "transient" getter, i.e. a getter-like method that does not
-     * correspond to an actual attribute in a Short URL Mapping item.
-     *
-     * Verify that this Short URL Mapping entity is really available, i.e.
-     * that the `isAvailable` attribute exists and has the same value as the
-     * `shortUrl` attribute.
-     *
-     * @return 'true' if this Short URL Mapping entity is really available,
-     * 'false' otherwise.
-     */
-    @Transient
-    public boolean isReallyAvailable() {
-        return (isAvailable != null) && (isAvailable.equals(shortUrl));
+    public void setLongUrl(String longUrl) {
+        this.longUrl = longUrl;
     }
 
     @DynamoDbVersionAttribute
@@ -127,16 +109,16 @@ public class ShortUrlMapping {
      * Convert to an attribute-value map.
      *
      * Convert this Short URL Mapping entity to an attribute-value Map
-     * containing entries that specify the values of the `shortUrl`, `isAvailable`,
-     * and `version` attributes.
+     * containing entries that specify the values of the `shortUrl`,
+     * `longUrl`, and `version` attributes.
      *
-     * @return the attribute-value Map corresponding to this Short URL Mapping
-     * entity.
+     * @return the attribute-value Map corresponding to this Short URL
+     * Mapping entity.
      */
     public Map<String, AttributeValue> toAttributeValueMap() {
         Map<String, AttributeValue> attributeValues = new HashMap<>();
         attributeValues.put("shortUrl", AttributeValue.builder().s(shortUrl).build());
-        attributeValues.put("isAvailable", AttributeValue.builder().s(isAvailable).build());
+        attributeValues.put("longUrl", AttributeValue.builder().s(longUrl).build());
         attributeValues.put("version", AttributeValue.builder().n(version.toString()).build());
 
         return attributeValues;
@@ -146,7 +128,7 @@ public class ShortUrlMapping {
     public String toString() {
         return "ShortUrlMapping{" +
                 "shortUrl='" + shortUrl + '\'' +
-                ", isAvailable='" + isAvailable + '\'' +
+                ", longUrl='" + longUrl + '\'' +
                 ", version=" + version +
                 '}';
     }
