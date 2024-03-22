@@ -13,9 +13,9 @@ package com.richarddklein.shorturlmappingservice.response;
  */
 public enum ShortUrlMappingStatus {
     SUCCESS,
-    SHORT_URL_NOT_FOUND,
-    SHORT_URL_FOUND_BUT_NOT_AVAILABLE,
-    SHORT_URL_FOUND_BUT_NOT_RESERVED,
+    SHORT_URL_NOT_VALID,
+    SHORT_URL_ALREADY_TAKEN,
     NO_SHORT_URL_IS_AVAILABLE,
+    NO_LONG_URL_SPECIFIED,
     NOT_ON_LOCAL_MACHINE,
 }

@@ -5,6 +5,7 @@
 
 package com.richarddklein.shorturlmappingservice.controller;
 
+import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,4 +39,19 @@ public interface ShortUrlMappingController {
     @PostMapping("/dbinit")
     ResponseEntity<StatusResponse>
     initializeShortUrlMappingRepository(HttpServletRequest request);
+
+    /**
+     * Create a short URL mapping.
+     *
+     * Create a new Short URL Mapping item in the Short URL Mapping
+     * table.
+     *
+     * @param shortUrlMapping The new Short URL Mapping item to be
+     *                        created.
+     * @return An HTTP Response Entity containing the status (success
+     * or failure) of the Short URL Mapping creation operation.
+     */
+    @PostMapping("/")
+    ResponseEntity<StatusResponse>
+    createShortUrlMapping(@RequestBody ShortUrlMapping shortUrlMapping);
 }

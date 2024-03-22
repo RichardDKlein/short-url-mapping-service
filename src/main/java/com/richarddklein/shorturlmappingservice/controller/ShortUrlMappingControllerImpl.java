@@ -5,6 +5,7 @@
 
 package com.richarddklein.shorturlmappingservice.controller;
 
+import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -59,6 +60,53 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
                             + "on your local machine");
             return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
         }
+    }
+
+    @Override
+    public ResponseEntity<StatusResponse>
+    createShortUrlMapping(@RequestBody ShortUrlMapping shortUrlMapping) {
+        ShortUrlMappingStatus shortUrlMappingStatus =
+                shortUrlMappingService.createShortUrlMapping(shortUrlMapping);
+
+        String shortUrl = shortUrlMapping.getShortUrl();
+        HttpStatus httpStatus;
+        StatusResponse response;
+
+        if (shortUrlMappingStatus == ShortUrlMappingStatus.SHORT_URL_NOT_VALID) {
+            httpStatus = HttpStatus.BAD_REQUEST;
+            response = new StatusResponse(
+                    ShortUrlMappingStatus.SHORT_URL_NOT_VALID,
+                    String.format("'%s' is not a valid short URL", shortUrl)
+            );
+        } else if (shortUrlMappingStatus ==
+                ShortUrlMappingStatus.SHORT_URL_ALREADY_TAKEN) {
+            httpStatus = HttpStatus.CONFLICT;
+            response = new StatusResponse(
+                    ShortUrlMappingStatus.SHORT_URL_ALREADY_TAKEN,
+                    String.format("Short URL '%s' is already taken", shortUrl)
+            );
+        } else if (shortUrlMappingStatus ==
+                ShortUrlMappingStatus.NO_SHORT_URL_IS_AVAILABLE) {
+            httpStatus = HttpStatus.NOT_FOUND;
+            response = new StatusResponse(
+                    ShortUrlMappingStatus.NO_SHORT_URL_IS_AVAILABLE,
+                    "No short URLs are available"
+            );
+        } else if (shortUrlMappingStatus ==
+                ShortUrlMappingStatus.NO_LONG_URL_SPECIFIED) {
+            httpStatus = HttpStatus.BAD_REQUEST;
+            response = new StatusResponse(
+                    ShortUrlMappingStatus.NO_LONG_URL_SPECIFIED,
+                    "You must specify a long URL"
+            );
+        } else {
+            httpStatus = HttpStatus.OK;
+            response = new StatusResponse(
+                    ShortUrlMappingStatus.SUCCESS,
+                    "Short URL Mapping item successfully created"
+            );
+        }
+        return new ResponseEntity<>(response, httpStatus);
     }
 
     // ------------------------------------------------------------------------
