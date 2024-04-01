@@ -15,11 +15,18 @@ import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
  */
 @Component
 public class ParameterStoreReaderImpl implements ParameterStoreReader {
-    private static final String SHORT_URL_MAPPING_TABLE_NAME = "/shortUrl/mappings/tableName";
+    private static final String SHORT_URL_MAPPING_TABLE_NAME =
+            "/shortUrl/mappings/tableName";
+    private static final String SHORT_URL_RESERVATION_SERVICE_BASE_URL_LOCAL =
+            "/shortUrl/reservations/baseUrlLocal";
+    private static final String SHORT_URL_RESERVATION_SERVICE_BASE_URL_AWS =
+            "/shortUrl/reservations/baseUrlAws";
 
     private final SsmClient ssmClient;
 
     private String shortUrlMappingTableName;
+    private String shortUrlReservationServiceBaseUrlLocal;
+    private String shortUrlReservationServiceBaseUrlAws;
 
     /**
      * General constructor.
@@ -37,11 +44,25 @@ public class ParameterStoreReaderImpl implements ParameterStoreReader {
         return shortUrlMappingTableName;
     }
 
+    @Override
+    public String getShortUrlReservationServiceBaseUrlLocal() {
+        return shortUrlReservationServiceBaseUrlLocal;
+    }
+
+    @Override
+    public String getShortUrlReservationServiceBaseUrlAws() {
+        return shortUrlReservationServiceBaseUrlAws;
+    }
+
     /**
      * Load all parameters from the Parameter Store.
      */
     private void loadParameters() {
         shortUrlMappingTableName = getParameter(SHORT_URL_MAPPING_TABLE_NAME);
+        shortUrlReservationServiceBaseUrlLocal =
+                getParameter(SHORT_URL_RESERVATION_SERVICE_BASE_URL_LOCAL);
+        shortUrlReservationServiceBaseUrlAws =
+                getParameter(SHORT_URL_RESERVATION_SERVICE_BASE_URL_AWS);
     }
 
     /**
