@@ -10,6 +10,7 @@ import com.richarddklein.shorturlmappingservice.controller.ShortUrlMappingContro
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * The Controller @Configuration class.
@@ -26,5 +27,11 @@ public class ControllerConfig {
     public ShortUrlMappingController
     shortUrlMappingController() {
         return new ShortUrlMappingControllerImpl(serviceConfig.shortUrlMappingService());
+    }
+
+    @Bean
+    public RestTemplate
+    restTemplate() {
+        return new RestTemplate();
     }
 }

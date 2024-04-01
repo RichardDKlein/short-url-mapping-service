@@ -46,6 +46,7 @@ public interface ShortUrlMappingController {
      * Create a new Short URL Mapping item in the Short URL Mapping
      * table.
      *
+     * @param request The HTTP Request sent by the client.
      * @param shortUrlMapping The new Short URL Mapping item to be
      *                        created.
      * @return An HTTP Response Entity containing the status (success
@@ -53,5 +54,6 @@ public interface ShortUrlMappingController {
      */
     @PostMapping("/")
     ResponseEntity<StatusResponse>
-    createShortUrlMapping(@RequestBody ShortUrlMapping shortUrlMapping);
+    createShortUrlMapping(HttpServletRequest request,
+                          @RequestBody ShortUrlMapping shortUrlMapping);
 }

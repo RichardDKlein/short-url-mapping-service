@@ -64,9 +64,12 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
 
     @Override
     public ResponseEntity<StatusResponse>
-    createShortUrlMapping(@RequestBody ShortUrlMapping shortUrlMapping) {
+    createShortUrlMapping(HttpServletRequest request,
+                          @RequestBody ShortUrlMapping shortUrlMapping) {
+
         ShortUrlMappingStatus shortUrlMappingStatus =
-                shortUrlMappingService.createShortUrlMapping(shortUrlMapping);
+                shortUrlMappingService.createShortUrlMapping(
+                        isRunningLocally(request.getRemoteAddr()), shortUrlMapping);
 
         String shortUrl = shortUrlMapping.getShortUrl();
         HttpStatus httpStatus;
