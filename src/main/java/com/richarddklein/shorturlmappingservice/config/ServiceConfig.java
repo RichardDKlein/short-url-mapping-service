@@ -8,6 +8,7 @@ package com.richarddklein.shorturlmappingservice.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 
 import com.richarddklein.shorturlmappingservice.service.ShortUrlMappingService;
 import com.richarddklein.shorturlmappingservice.service.ShortUrlMappingServiceImpl;
@@ -24,8 +25,17 @@ public class ServiceConfig {
     DaoConfig daoConfig;
 
     @Bean
+    public RestTemplate
+    restTemplate() {
+        return new RestTemplate();
+    }
+
+    @Bean
     public ShortUrlMappingService
     shortUrlMappingService() {
-        return new ShortUrlMappingServiceImpl(daoConfig.shortUrlMappingDao());
+        return new ShortUrlMappingServiceImpl(
+                daoConfig.shortUrlMappingDao(),
+                daoConfig.parameterStoreReader(),
+                restTemplate());
     }
 }

@@ -102,6 +102,13 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
                     ShortUrlMappingStatus.NO_LONG_URL_SPECIFIED,
                     "You must specify a long URL"
             );
+        } else if (shortUrlMappingStatus ==
+                ShortUrlMappingStatus.UNKNOWN_SHORT_URL_RESERVATION_ERROR) {
+            httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+            response = new StatusResponse(
+                    ShortUrlMappingStatus.UNKNOWN_SHORT_URL_RESERVATION_ERROR,
+                    "Unknown error while attempting to reserve a short URL"
+            );
         } else {
             httpStatus = HttpStatus.OK;
             response = new StatusResponse(

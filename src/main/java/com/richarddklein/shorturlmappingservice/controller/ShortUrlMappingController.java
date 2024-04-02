@@ -52,7 +52,7 @@ public interface ShortUrlMappingController {
      * @return An HTTP Response Entity containing the status (success
      * or failure) of the Short URL Mapping creation operation.
      */
-    @PostMapping("/")
+    @PostMapping("")
     ResponseEntity<StatusResponse>
     createShortUrlMapping(HttpServletRequest request,
                           @RequestBody ShortUrlMapping shortUrlMapping);
