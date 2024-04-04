@@ -5,6 +5,9 @@
 
 package com.richarddklein.shorturlmappingservice.dao;
 
+import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
+import com.richarddklein.shorturlmappingservice.response.ShortUrlMappingStatus;
+
 /**
  * The Short URL Mapping DAO (Data Access Object) interface.
  *
@@ -20,4 +23,6 @@ public interface ShortUrlMappingDao {
      * Create an empty Short URL Mapping table in the repository.
      */
     void initializeShortUrlMappingRepository();
+
+    ShortUrlMappingStatus createShortUrlMapping(ShortUrlMapping shortUrlMapping);
 }

@@ -5,21 +5,17 @@
 
 package com.richarddklein.shorturlmappingservice.dao;
 
-import java.util.*;
-
 import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
 import org.springframework.stereotype.Repository;
 
-import software.amazon.awssdk.core.pagination.sync.SdkIterable;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Expression;
 import software.amazon.awssdk.enhanced.dynamodb.model.CreateTableEnhancedRequest;
-import software.amazon.awssdk.enhanced.dynamodb.model.Page;
+import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedResponse;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 import software.amazon.awssdk.services.dynamodb.waiters.DynamoDbWaiter;
 
-import com.richarddklein.shorturlmappingservice.exception.NoShortUrlsAvailableException;
 import com.richarddklein.shorturlmappingservice.response.ShortUrlMappingStatus;
 
 /**
@@ -116,6 +112,19 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
             deleteShortUrlMappingTable();
         }
         createShortUrlMappingTable();
+    }
+
+    @Override
+    public ShortUrlMappingStatus createShortUrlMapping(ShortUrlMapping shortUrlMapping) {
+        PutItemEnhancedResponse<ShortUrlMapping> response =
+                shortUrlMappingTable.putItemWithResponse(req -> req
+                        .item(shortUrlMapping)
+                        .conditionExpression(Expression.builder()
+                                .expression("attribute_not_exists(PK)")
+                                .build()));
+        return (response.consumedCapacity() != null) ?
+                ShortUrlMappingStatus.SUCCESS :
+                ShortUrlMappingStatus.SHORT_URL_ALREADY_TAKEN; // should never happen
     }
 
     // ------------------------------------------------------------------------
