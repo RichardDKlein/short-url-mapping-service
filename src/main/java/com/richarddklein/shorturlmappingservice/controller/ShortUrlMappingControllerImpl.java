@@ -6,6 +6,7 @@
 package com.richarddklein.shorturlmappingservice.controller;
 
 import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
+import com.richarddklein.shorturlmappingservice.response.StatusAndShortUrlMappingResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -63,7 +64,7 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
     }
 
     @Override
-    public ResponseEntity<StatusResponse>
+    public ResponseEntity<StatusAndShortUrlMappingResponse>
     createShortUrlMapping(HttpServletRequest request,
                           @RequestBody ShortUrlMapping shortUrlMapping) {
 
@@ -73,50 +74,55 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
 
         String shortUrl = shortUrlMapping.getShortUrl();
         HttpStatus httpStatus;
-        StatusResponse response;
+        StatusResponse statusResponse;
+        StatusAndShortUrlMappingResponse statusAndShortUrlMappingResponse;
 
         if (shortUrlMappingStatus == ShortUrlMappingStatus.SHORT_URL_NOT_VALID) {
             httpStatus = HttpStatus.BAD_REQUEST;
-            response = new StatusResponse(
+            statusResponse = new StatusResponse(
                     ShortUrlMappingStatus.SHORT_URL_NOT_VALID,
                     String.format("'%s' is not a valid short URL", shortUrl)
             );
         } else if (shortUrlMappingStatus ==
                 ShortUrlMappingStatus.SHORT_URL_ALREADY_TAKEN) {
             httpStatus = HttpStatus.CONFLICT;
-            response = new StatusResponse(
+            statusResponse = new StatusResponse(
                     ShortUrlMappingStatus.SHORT_URL_ALREADY_TAKEN,
                     String.format("Short URL '%s' is already taken", shortUrl)
             );
         } else if (shortUrlMappingStatus ==
                 ShortUrlMappingStatus.NO_SHORT_URL_IS_AVAILABLE) {
             httpStatus = HttpStatus.NOT_FOUND;
-            response = new StatusResponse(
+            statusResponse = new StatusResponse(
                     ShortUrlMappingStatus.NO_SHORT_URL_IS_AVAILABLE,
                     "No short URLs are available"
             );
         } else if (shortUrlMappingStatus ==
                 ShortUrlMappingStatus.NO_LONG_URL_SPECIFIED) {
             httpStatus = HttpStatus.BAD_REQUEST;
-            response = new StatusResponse(
+            statusResponse = new StatusResponse(
                     ShortUrlMappingStatus.NO_LONG_URL_SPECIFIED,
                     "You must specify a long URL"
             );
         } else if (shortUrlMappingStatus ==
                 ShortUrlMappingStatus.UNKNOWN_SHORT_URL_RESERVATION_ERROR) {
             httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-            response = new StatusResponse(
+            statusResponse = new StatusResponse(
                     ShortUrlMappingStatus.UNKNOWN_SHORT_URL_RESERVATION_ERROR,
                     "Unknown error while attempting to reserve a short URL"
             );
         } else {
             httpStatus = HttpStatus.OK;
-            response = new StatusResponse(
+            statusResponse = new StatusResponse(
                     ShortUrlMappingStatus.SUCCESS,
                     "Short URL Mapping item successfully created"
             );
         }
-        return new ResponseEntity<>(response, httpStatus);
+
+        statusAndShortUrlMappingResponse =
+                new StatusAndShortUrlMappingResponse(statusResponse, shortUrlMapping);
+
+        return new ResponseEntity<>(statusAndShortUrlMappingResponse, httpStatus);
     }
 
     // ------------------------------------------------------------------------

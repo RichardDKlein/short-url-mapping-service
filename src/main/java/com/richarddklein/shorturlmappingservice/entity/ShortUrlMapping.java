@@ -5,9 +5,10 @@
 
 package com.richarddklein.shorturlmappingservice.entity;
 
-import java.beans.Transient;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import software.amazon.awssdk.enhanced.dynamodb.extensions.annotations.DynamoDbVersionAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
@@ -38,6 +39,7 @@ public class ShortUrlMapping {
      * The `version` attribute. See the `ShortUrlMappingDaoImpl`
      * Javadoc for a detailed description of this attribute.
      */
+    @JsonIgnore
     private Long version;
 
     /**

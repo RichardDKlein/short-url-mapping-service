@@ -116,13 +116,15 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
 
     @Override
     public ShortUrlMappingStatus createShortUrlMapping(ShortUrlMapping shortUrlMapping) {
+        System.out.printf("shortUrlMapping = %s\n", shortUrlMapping);
         PutItemEnhancedResponse<ShortUrlMapping> response =
                 shortUrlMappingTable.putItemWithResponse(req -> req
                         .item(shortUrlMapping)
                         .conditionExpression(Expression.builder()
-                                .expression("attribute_not_exists(PK)")
-                                .build()));
-        return (response.consumedCapacity() != null) ?
+                                .expression("attribute_not_exists(shortUrl)")
+                                .build())
+                        .returnConsumedCapacity(ReturnConsumedCapacity.TOTAL));
+        return (response.consumedCapacity().capacityUnits() > 0) ?
                 ShortUrlMappingStatus.SUCCESS :
                 ShortUrlMappingStatus.SHORT_URL_ALREADY_TAKEN; // should never happen
     }
