@@ -1,6 +1,6 @@
 package com.richarddklein.shorturlmappingservice.response.shorturlreservationservice;
 
-public class ApiResponse {
+public class ReserveAnyShortUrlApiResponse {
     private Status status;
     private ShortUrlReservation shortUrlReservation;
 

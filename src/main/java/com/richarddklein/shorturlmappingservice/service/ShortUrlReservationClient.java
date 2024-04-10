@@ -25,7 +25,22 @@ public interface ShortUrlReservationClient {
      * @param isRunningLocally 'true' if the Short URL Reservation Service
      *                         is running on your local machine, 'false'
      *                         otherwise.
-     * @return The success/failure status of the item creation operation.
+     * @return The success/failure status of the reservation operation.
      */
     ShortUrlReservationResult reserveAnyShortUrl(boolean isRunningLocally);
+
+    /**
+     * Reserve specific short URL.
+     *
+     * Request the Short URL Reservation Service to reserve a specific
+     * short URL.
+     *
+     * @param isRunningLocally 'true' if the Short URL Reservation Service
+     *                         is running on your local machine, 'false'
+     *                         otherwise.
+     * @param shortUrl The specific short URL to be reserved.
+     * @return The success/failure status of the reservation operation.
+     */
+    ShortUrlReservationResult reserveSpecificShortUrl(boolean isRunningLocally,
+                                                      String shortUrl);
 }

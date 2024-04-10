@@ -62,6 +62,13 @@ public class ShortUrlMappingServiceImpl implements ShortUrlMappingService {
                 return shortUrlReservationResult.status;
             }
             shortUrlMapping.setShortUrl(shortUrlReservationResult.shortUrl);
+        } else {
+            ShortUrlReservationResult shortUrlReservationResult =
+                    shortUrlReservationClient.reserveSpecificShortUrl(
+                            isRunningLocally, shortUrl);
+            if (shortUrlReservationResult.status != ShortUrlMappingStatus.SUCCESS) {
+                return shortUrlReservationResult.status;
+            }
         }
         return shortUrlMappingDao.createShortUrlMapping(shortUrlMapping);
     }
