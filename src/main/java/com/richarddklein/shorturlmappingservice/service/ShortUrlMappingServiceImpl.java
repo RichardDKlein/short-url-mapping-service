@@ -5,14 +5,13 @@
 
 package com.richarddklein.shorturlmappingservice.service;
 
-import com.richarddklein.shorturlmappingservice.dao.ParameterStoreReader;
-import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
-import com.richarddklein.shorturlmappingservice.response.ShortUrlMappingStatus;
-import com.richarddklein.shorturlmappingservice.response.shorturlreservationservice.ShortUrlReservationResult;
 import org.springframework.stereotype.Service;
 
 import com.richarddklein.shorturlmappingservice.dao.ShortUrlMappingDao;
-import org.springframework.web.client.RestTemplate;
+import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
+import com.richarddklein.shorturlmappingservice.response.ShortUrlMappingStatus;
+import com.richarddklein.shorturlmappingservice.response.shorturlreservationservice.ShortUrlReservationResult;
+
 
 /**
  * The production implementation of the Short URL Mapping Service interface.
@@ -63,11 +62,10 @@ public class ShortUrlMappingServiceImpl implements ShortUrlMappingService {
             }
             shortUrlMapping.setShortUrl(shortUrlReservationResult.shortUrl);
         } else {
-            ShortUrlReservationResult shortUrlReservationResult =
-                    shortUrlReservationClient.reserveSpecificShortUrl(
-                            isRunningLocally, shortUrl);
-            if (shortUrlReservationResult.status != ShortUrlMappingStatus.SUCCESS) {
-                return shortUrlReservationResult.status;
+            ShortUrlMappingStatus status = shortUrlReservationClient
+                    .reserveSpecificShortUrl(isRunningLocally, shortUrl);
+            if (status != ShortUrlMappingStatus.SUCCESS) {
+                return status;
             }
         }
         return shortUrlMappingDao.createShortUrlMapping(shortUrlMapping);

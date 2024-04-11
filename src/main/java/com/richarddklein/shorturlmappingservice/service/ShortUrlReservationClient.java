@@ -5,7 +5,6 @@
 
 package com.richarddklein.shorturlmappingservice.service;
 
-import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
 import com.richarddklein.shorturlmappingservice.response.ShortUrlMappingStatus;
 import com.richarddklein.shorturlmappingservice.response.shorturlreservationservice.ShortUrlReservationResult;
 
@@ -41,6 +40,6 @@ public interface ShortUrlReservationClient {
      * @param shortUrl The specific short URL to be reserved.
      * @return The success/failure status of the reservation operation.
      */
-    ShortUrlReservationResult reserveSpecificShortUrl(boolean isRunningLocally,
-                                                      String shortUrl);
+    ShortUrlMappingStatus reserveSpecificShortUrl(boolean isRunningLocally,
+                                                  String shortUrl);
 }

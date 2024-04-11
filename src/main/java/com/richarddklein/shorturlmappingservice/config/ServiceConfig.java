@@ -33,19 +33,7 @@ public class ServiceConfig {
     @Bean
     public RestTemplate
     restTemplate() {
-        RestTemplate restTemplate = new RestTemplate();
-//        restTemplate.setErrorHandler(new ResponseErrorHandler() {
-//            @Override
-//            public boolean hasError(ClientHttpResponse response) throws IOException {
-//                return !response.getStatusCode().is2xxSuccessful();
-//            }
-//
-//            @Override
-//            public void handleError(ClientHttpResponse response) throws IOException {
-//                System.out.println("====> HERE I AM IN MY CUSTOM RESPONSE ERROR HANDLER");
-//            }
-//        });
-        return restTemplate;
+        return new RestTemplate();
     }
 
     @Bean
