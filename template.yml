@@ -27,6 +27,12 @@ Resources:
         - SSMParameterWithSlashPrefixReadPolicy:
             ParameterName:
               /shortUrl/mappings/tableName
+        - SSMParameterWithSlashPrefixReadPolicy:
+            ParameterName:
+              /shortUrl/reservations/baseUrlAws
+        - SSMParameterWithSlashPrefixReadPolicy:
+            ParameterName:
+              /shortUrl/reservations/baseUrlLocal
       SnapStart:
         ApplyOn: "PublishedVersions"
 
