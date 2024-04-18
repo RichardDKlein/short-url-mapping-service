@@ -6,6 +6,7 @@
 package com.richarddklein.shorturlmappingservice.controller;
 
 import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
+import com.richarddklein.shorturlmappingservice.response.StatusAndShortUrlMappingArrayResponse;
 import com.richarddklein.shorturlmappingservice.response.StatusAndShortUrlMappingResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -45,11 +46,13 @@ public interface ShortUrlMappingController {
      * Create a short URL mapping.
      *
      * Create a new Short URL Mapping item in the Short URL Mapping
-     * table.
+     * repository.
      *
      * @param request The HTTP Request sent by the client.
      * @param shortUrlMapping The new Short URL Mapping item to be
-     *                        created.
+     *                        created. If the `shortUrl` property is
+     *                        not specified, then the caller is willing
+     *                        to accept any available short URL.
      * @return An HTTP Response Entity containing the status (success
      * or failure) of the Short URL Mapping creation operation, and
      * the newly created Short URL Mapping item if the operation was
@@ -59,4 +62,23 @@ public interface ShortUrlMappingController {
     ResponseEntity<StatusAndShortUrlMappingResponse>
     createShortUrlMapping(HttpServletRequest request,
                           @RequestBody ShortUrlMapping shortUrlMapping);
+
+    /**
+     * Get specific short URL mapping(s).
+     *
+     * Retrieve the specified Short URL Mapping item(s) from the Short URL
+     * Mapping repository.
+     *
+     * @param shortUrlMapping Data structure specifying the Short URL
+     *                        Mapping item(s) to be retrieved. Inside the
+     *                        data structure, the caller may specify the
+     *                        `shortUrl` or `longUrl` (or both) to be used
+     *                        as the query parameter(s).
+     * @return An HTTP Response Entity containing the status (success or
+     * failure) of the Short URL Mapping retrieval operation, and the
+     * retrieved Short URL Mapping item(s) if the operation was successful.
+     */
+    @GetMapping("")
+    ResponseEntity<StatusAndShortUrlMappingArrayResponse>
+    getSpecificShortUrlMapping(@RequestBody ShortUrlMapping shortUrlMapping);
 }

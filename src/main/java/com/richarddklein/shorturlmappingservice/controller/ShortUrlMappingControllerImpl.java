@@ -5,7 +5,10 @@
 
 package com.richarddklein.shorturlmappingservice.controller;
 
+import java.util.List;
+
 import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
+import com.richarddklein.shorturlmappingservice.response.StatusAndShortUrlMappingArrayResponse;
 import com.richarddklein.shorturlmappingservice.response.StatusAndShortUrlMappingResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -66,7 +69,7 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
     @Override
     public ResponseEntity<StatusAndShortUrlMappingResponse>
     createShortUrlMapping(HttpServletRequest request,
-                          @RequestBody ShortUrlMapping shortUrlMapping) {
+                          ShortUrlMapping shortUrlMapping) {
 
         ShortUrlMappingStatus shortUrlMappingStatus =
                 shortUrlMappingService.createShortUrlMapping(
@@ -75,7 +78,6 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
         String shortUrl = shortUrlMapping.getShortUrl();
         HttpStatus httpStatus;
         StatusResponse statusResponse;
-        StatusAndShortUrlMappingResponse statusAndShortUrlMappingResponse;
 
         if (shortUrlMappingStatus == ShortUrlMappingStatus.SHORT_URL_NOT_VALID) {
             httpStatus = HttpStatus.BAD_REQUEST;
@@ -119,10 +121,53 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
             );
         }
 
-        statusAndShortUrlMappingResponse =
+        StatusAndShortUrlMappingResponse statusAndShortUrlMappingResponse =
                 new StatusAndShortUrlMappingResponse(statusResponse, shortUrlMapping);
 
         return new ResponseEntity<>(statusAndShortUrlMappingResponse, httpStatus);
+    }
+
+    @Override
+    public ResponseEntity<StatusAndShortUrlMappingArrayResponse>
+    getSpecificShortUrlMapping(ShortUrlMapping shortUrlMapping) {
+
+        Object[] statusAndShortUrlMappings =
+                shortUrlMappingService.getSpecificShortUrlMappings(shortUrlMapping);
+
+        String shortUrl = shortUrlMapping.getShortUrl();
+        String longUrl = shortUrlMapping.getLongUrl();
+        HttpStatus httpStatus;
+        StatusResponse statusResponse;
+        ShortUrlMappingStatus shortUrlMappingStatus =
+                (ShortUrlMappingStatus)statusAndShortUrlMappings[0];
+        List<ShortUrlMapping> shortUrlMappings =
+                (List<ShortUrlMapping>)statusAndShortUrlMappings[1];
+
+        if (shortUrlMappingStatus == ShortUrlMappingStatus.NO_SUCH_SHORT_URL) {
+            httpStatus = HttpStatus.NOT_FOUND;
+            statusResponse = new StatusResponse(
+                    ShortUrlMappingStatus.NO_SUCH_SHORT_URL,
+                    String.format("Short URL '%s' was not found", shortUrl)
+            );
+        } else if (shortUrlMappingStatus ==
+                ShortUrlMappingStatus.NO_SUCH_LONG_URL) {
+            httpStatus = HttpStatus.NOT_FOUND;
+            statusResponse = new StatusResponse(
+                    ShortUrlMappingStatus.NO_SUCH_LONG_URL,
+                    String.format("Long URL '%s' was not found", longUrl)
+            );
+        } else {
+            httpStatus = HttpStatus.OK;
+            statusResponse = new StatusResponse(
+                    ShortUrlMappingStatus.SUCCESS,
+                    "Short URL Mapping item successfully retrieved"
+            );
+        }
+
+        StatusAndShortUrlMappingArrayResponse statusAndShortUrlMappingArrayResponse =
+                new StatusAndShortUrlMappingArrayResponse(statusResponse, shortUrlMappings);
+
+        return new ResponseEntity<>(statusAndShortUrlMappingArrayResponse, httpStatus);
     }
 
     // ------------------------------------------------------------------------

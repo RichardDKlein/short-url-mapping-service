@@ -35,6 +35,7 @@ public class DaoConfig {
         return new ShortUrlMappingDaoImpl(
                 parameterStoreReader(),
                 dynamoDbClient(),
+                dynamoDbEnhancedClient(),
                 shortUrlMappingTable()
         );
     }
@@ -63,6 +64,7 @@ public class DaoConfig {
                 parameterStoreReader().getShortUrlMappingTableName(),
                 TableSchema.fromBean(ShortUrlMapping.class));
     }
+
     @Bean
     public SsmClient
     ssmClient() {

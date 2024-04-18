@@ -5,13 +5,20 @@
 
 package com.richarddklein.shorturlmappingservice.dao;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
 import org.springframework.stereotype.Repository;
 
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
-import software.amazon.awssdk.enhanced.dynamodb.Expression;
+import software.amazon.awssdk.core.pagination.sync.SdkIterable;
+import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.enhanced.dynamodb.model.CreateTableEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedResponse;
+import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 import software.amazon.awssdk.services.dynamodb.waiters.DynamoDbWaiter;
@@ -75,8 +82,10 @@ import com.richarddklein.shorturlmappingservice.response.ShortUrlMappingStatus;
  */
 @Repository
 public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
+    private static final String LONG_URL_INDEX_NAME = "longUrl-index";
     private final ParameterStoreReader parameterStoreReader;
     private final DynamoDbClient dynamoDbClient;
+    private final DynamoDbEnhancedClient dynamoDbEnhancedClient;
     private final DynamoDbTable<ShortUrlMapping> shortUrlMappingTable;
 
     // ------------------------------------------------------------------------
@@ -99,10 +108,12 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
     public ShortUrlMappingDaoImpl(
             ParameterStoreReader parameterStoreReader,
             DynamoDbClient dynamoDbClient,
+            DynamoDbEnhancedClient dynamoDbEnhancedClient,
             DynamoDbTable<ShortUrlMapping> shortUrlMappingTable) {
 
         this.parameterStoreReader = parameterStoreReader;
         this.dynamoDbClient = dynamoDbClient;
+        this.dynamoDbEnhancedClient = dynamoDbEnhancedClient;
         this.shortUrlMappingTable = shortUrlMappingTable;
     }
 
@@ -116,7 +127,6 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
 
     @Override
     public ShortUrlMappingStatus createShortUrlMapping(ShortUrlMapping shortUrlMapping) {
-        System.out.printf("shortUrlMapping = %s\n", shortUrlMapping);
         PutItemEnhancedResponse<ShortUrlMapping> response =
                 shortUrlMappingTable.putItemWithResponse(req -> req
                         .item(shortUrlMapping)
@@ -127,6 +137,67 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
         return (response.consumedCapacity().capacityUnits() > 0) ?
                 ShortUrlMappingStatus.SUCCESS :
                 ShortUrlMappingStatus.SHORT_URL_ALREADY_TAKEN; // should never happen
+    }
+
+    @Override
+    public Object[] getSpecificShortUrlMappings(ShortUrlMapping shortUrlMapping) {
+        Object[] result = new Object[2];
+
+        String shortUrl = shortUrlMapping.getShortUrl();
+        String longUrl = shortUrlMapping.getLongUrl();
+
+        boolean isShortUrlSpecified = shortUrl != null && !shortUrl.isEmpty();
+        boolean isLongUrlSpecified = longUrl != null && !longUrl.isEmpty();
+
+        boolean isOnlyShortUrlSpecified = isShortUrlSpecified && !isLongUrlSpecified;
+        boolean isOnlyLongUrlSpecified = isLongUrlSpecified && !isShortUrlSpecified;
+        boolean areBothShortAndLongUrlsSpecified = isShortUrlSpecified && isLongUrlSpecified;
+
+        List<ShortUrlMapping> matchingMappings = null;
+        ShortUrlMappingStatus shortUrlMappingStatus = ShortUrlMappingStatus.SUCCESS;
+
+        if (isOnlyShortUrlSpecified) {
+            matchingMappings = findMatchingShortUrls();
+            if (matchingMappings.isEmpty()) {
+                shortUrlMappingStatus = ShortUrlMappingStatus.NO_SUCH_SHORT_URL;
+            }
+        } else if (isOnlyLongUrlSpecified) {
+            matchingMappings = findMatchingLongUrls();
+            if (matchingMappings.isEmpty()) {
+                shortUrlMappingStatus = ShortUrlMappingStatus.NO_SUCH_LONG_URL;
+            }
+        } else if (areBothShortAndLongUrlsSpecified) {
+            Set<ShortUrlMapping> matchingShortUrls = new HashSet<>(findMatchingShortUrls());
+            Set<ShortUrlMapping> matchingLongUrls = new HashSet<>(findMatchingLongUrls());
+            matchingShortUrls.retainAll(matchingLongUrls);
+            matchingMappings = new ArrayList<>(matchingShortUrls);
+            if (matchingMappings.isEmpty()) {
+                shortUrlMappingStatus = ShortUrlMappingStatus.NO_SUCH_MAPPING;
+            }
+        }
+        result[0] = shortUrlMappingStatus;
+        result[1] = matchingMappings;
+        return result;
+// =====================================================================================
+        if (shortUrl != null && !shortUrl.isEmpty()) {
+            QueryConditional queryConditional = QueryConditional
+                    .keyEqualTo(Key.builder().partitionValue(shortUrl).build());
+            SdkIterable<ShortUrlMapping> results = shortUrlMappingTable.query(
+                    req -> req.queryConditional(queryConditional)).items();
+            List<ShortUrlMapping> matchingShortUrls = new ArrayList<>();
+            results.forEach(matchingShortUrls::add);
+        }
+
+        if (longUrl != null && !longUrl.isEmpty()) {
+            QueryConditional queryConditional = QueryConditional
+                    .keyEqualTo(Key.builder().partitionValue(longUrl).build());
+            DynamoDbIndex<ShortUrlMapping> gsiIndexOnLongUrl =
+                    shortUrlMappingTable.index(LONG_URL_INDEX_NAME);
+            SdkIterable<Page<ShortUrlMapping>> results = gsiIndexOnLongUrl.query(
+                    req -> req.queryConditional(queryConditional));
+            List<ShortUrlMapping> matchingLongUrls = new ArrayList<>();
+            results.forEach(page -> page.items().forEach(matchingLongUrls::add));
+        }
     }
 
     // ------------------------------------------------------------------------

@@ -33,8 +33,30 @@ public interface ShortUrlMappingService {
      *                         running on your local machine, 'false'
      *                         otherwise.
      * @param shortUrlMapping The Short URL Mapping item to be created.
+     *                        If the `shortUrl` property is not specified,
+     *                        then the caller is willing to accept any
+     *                        available short URL.
      * @return The success/failure status of the item creation operation.
      */
     ShortUrlMappingStatus createShortUrlMapping(
             boolean isRunningLocally, ShortUrlMapping shortUrlMapping);
+
+    /**
+     * Get specific Short URL Mapping items.
+     *
+     * Retrieve specified Short URL Mapping item(s) from the Short URL
+     * Mapping repository.
+     *
+     * @param shortUrlMapping A data structure specifying the Short URL
+     *                        Mapping item(s) to be retrieved. Inside the
+     *                        data structure, the caller may specify the
+     *                        `shortUrl` or `longUrl` (or both) to be used
+     *                        as the query parameter(s).
+     * @return An array consisting of two Objects. Objects[0] is a status
+     * code (the enumerated type ShortUrlMappingStatus) indicating the
+     * success/failure status of the retrieval operation. Objects[1] is a
+     * List (possibly empty) of all the `ShortURLMapping` items matching
+     * the query parameters specified in the `shortUrlMapping` parameter.
+     */
+    Object[] getSpecificShortUrlMappings(ShortUrlMapping shortUrlMapping);
 }
