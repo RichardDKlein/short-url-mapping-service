@@ -83,3 +83,13 @@ Resources:
           Properties:
             Path: /
             Method: POST
+        GetSpecificShortUrlMappingViaApiGatewayOrLocalHost:
+          Type: Api
+          Properties:
+            Path: /shorturl/mappings
+            Method: GET
+        GetSpecificShortUrlMappingViaCustomDomain:
+          Type: Api
+          Properties:
+            Path: /
+            Method: GET

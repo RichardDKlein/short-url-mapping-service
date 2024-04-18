@@ -157,47 +157,36 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
         ShortUrlMappingStatus shortUrlMappingStatus = ShortUrlMappingStatus.SUCCESS;
 
         if (isOnlyShortUrlSpecified) {
-            matchingMappings = findMatchingShortUrls();
+            matchingMappings = findMatchingShortUrls(shortUrl);
             if (matchingMappings.isEmpty()) {
                 shortUrlMappingStatus = ShortUrlMappingStatus.NO_SUCH_SHORT_URL;
             }
         } else if (isOnlyLongUrlSpecified) {
-            matchingMappings = findMatchingLongUrls();
+            matchingMappings = findMatchingLongUrls(longUrl);
             if (matchingMappings.isEmpty()) {
                 shortUrlMappingStatus = ShortUrlMappingStatus.NO_SUCH_LONG_URL;
             }
-        } else if (areBothShortAndLongUrlsSpecified) {
-            Set<ShortUrlMapping> matchingShortUrls = new HashSet<>(findMatchingShortUrls());
-            Set<ShortUrlMapping> matchingLongUrls = new HashSet<>(findMatchingLongUrls());
-            matchingShortUrls.retainAll(matchingLongUrls);
-            matchingMappings = new ArrayList<>(matchingShortUrls);
-            if (matchingMappings.isEmpty()) {
-                shortUrlMappingStatus = ShortUrlMappingStatus.NO_SUCH_MAPPING;
+        } else {
+            if (areBothShortAndLongUrlsSpecified) {
+                matchingMappings = new ArrayList<>();
+                List<ShortUrlMapping> matchingShortUrls = findMatchingShortUrls(shortUrl);
+                List<ShortUrlMapping> matchingLongUrls = findMatchingLongUrls(longUrl);
+                for (ShortUrlMapping item1 : matchingShortUrls) {
+                    for (ShortUrlMapping item2 : matchingLongUrls) {
+                        if (item1.getShortUrl().equals(item2.getShortUrl())
+                                && item1.getLongUrl().equals(item2.getLongUrl())) {
+                            matchingMappings.add(item1);
+                        }
+                    }
+                };
+                if (matchingMappings.isEmpty()) {
+                    shortUrlMappingStatus = ShortUrlMappingStatus.NO_SUCH_MAPPING;
+                }
             }
         }
         result[0] = shortUrlMappingStatus;
         result[1] = matchingMappings;
         return result;
-// =====================================================================================
-        if (shortUrl != null && !shortUrl.isEmpty()) {
-            QueryConditional queryConditional = QueryConditional
-                    .keyEqualTo(Key.builder().partitionValue(shortUrl).build());
-            SdkIterable<ShortUrlMapping> results = shortUrlMappingTable.query(
-                    req -> req.queryConditional(queryConditional)).items();
-            List<ShortUrlMapping> matchingShortUrls = new ArrayList<>();
-            results.forEach(matchingShortUrls::add);
-        }
-
-        if (longUrl != null && !longUrl.isEmpty()) {
-            QueryConditional queryConditional = QueryConditional
-                    .keyEqualTo(Key.builder().partitionValue(longUrl).build());
-            DynamoDbIndex<ShortUrlMapping> gsiIndexOnLongUrl =
-                    shortUrlMappingTable.index(LONG_URL_INDEX_NAME);
-            SdkIterable<Page<ShortUrlMapping>> results = gsiIndexOnLongUrl.query(
-                    req -> req.queryConditional(queryConditional));
-            List<ShortUrlMapping> matchingLongUrls = new ArrayList<>();
-            results.forEach(page -> page.items().forEach(matchingLongUrls::add));
-        }
     }
 
     // ------------------------------------------------------------------------
@@ -250,5 +239,45 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
                 .tableName(parameterStoreReader.getShortUrlMappingTableName()).build());
         waiter.close();
         System.out.println(" done!");
+    }
+
+    /**
+     * Find matching short URLs.
+     *
+     * Find all Short URL Mapping items in the repository whose `shortUrl`
+     * property matches the given one.
+     *
+     * @param shortUrl The short URL to be matched.
+     * @return A list of all matching Short URL Mapping items.
+     */
+    private List<ShortUrlMapping> findMatchingShortUrls(String shortUrl) {
+        QueryConditional queryConditional = QueryConditional
+                .keyEqualTo(Key.builder().partitionValue(shortUrl).build());
+        SdkIterable<ShortUrlMapping> results = shortUrlMappingTable.query(
+                req -> req.queryConditional(queryConditional)).items();
+        List<ShortUrlMapping> matchingShortUrls = new ArrayList<>();
+        results.forEach(matchingShortUrls::add);
+        return matchingShortUrls;
+    }
+
+    /**
+     * Find matching long URLs.
+     *
+     * Find all Short URL Mapping items in the repository whose `longUrl`
+     * property matches the given one.
+     *
+     * @param longUrl The long URL to be matched.
+     * @return A list of all matching Short URL Mapping items.
+     */
+    private List<ShortUrlMapping> findMatchingLongUrls(String longUrl) {
+        QueryConditional queryConditional = QueryConditional
+                .keyEqualTo(Key.builder().partitionValue(longUrl).build());
+        DynamoDbIndex<ShortUrlMapping> gsiIndexOnLongUrl =
+                shortUrlMappingTable.index(LONG_URL_INDEX_NAME);
+        SdkIterable<Page<ShortUrlMapping>> results = gsiIndexOnLongUrl.query(
+                req -> req.queryConditional(queryConditional));
+        List<ShortUrlMapping> matchingLongUrls = new ArrayList<>();
+        results.forEach(page -> matchingLongUrls.addAll(page.items()));
+        return matchingLongUrls;
     }
 }

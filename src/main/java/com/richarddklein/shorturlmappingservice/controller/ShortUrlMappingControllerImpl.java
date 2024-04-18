@@ -160,7 +160,7 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
             httpStatus = HttpStatus.OK;
             statusResponse = new StatusResponse(
                     ShortUrlMappingStatus.SUCCESS,
-                    "Short URL Mapping item successfully retrieved"
+                    "Short URL Mapping item(s) successfully retrieved"
             );
         }
 
