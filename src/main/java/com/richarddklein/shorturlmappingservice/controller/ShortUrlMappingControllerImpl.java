@@ -5,6 +5,8 @@
 
 package com.richarddklein.shorturlmappingservice.controller;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
@@ -175,6 +177,43 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
                 new StatusAndShortUrlMappingArrayResponse(statusResponse, shortUrlMappings);
 
         return new ResponseEntity<>(statusAndShortUrlMappingArrayResponse, httpStatus);
+    }
+
+    @Override
+    public ResponseEntity<?> redirectShortUrlToLongUrl(String shortUrl) {
+        ShortUrlMapping shortUrlMapping = new ShortUrlMapping(shortUrl, "");
+
+        Object[] statusAndShortUrlMappings =
+                shortUrlMappingService.getSpecificShortUrlMappings(shortUrlMapping);
+
+        HttpStatus httpStatus;
+        StatusResponse statusResponse;
+        ShortUrlMappingStatus shortUrlMappingStatus =
+                (ShortUrlMappingStatus)statusAndShortUrlMappings[0];
+        List<ShortUrlMapping> shortUrlMappings =
+                (List<ShortUrlMapping>)statusAndShortUrlMappings[1];
+
+        if (shortUrlMappingStatus == ShortUrlMappingStatus.NO_SUCH_SHORT_URL) {
+            httpStatus = HttpStatus.NOT_FOUND;
+            statusResponse = new StatusResponse(
+                    ShortUrlMappingStatus.NO_SUCH_SHORT_URL,
+                    String.format("Short URL '%s' was not found", shortUrl)
+            );
+            return new ResponseEntity<StatusResponse>(statusResponse, httpStatus);
+        }
+        String longUrl = shortUrlMappings.get(0).getLongUrl();
+        try {
+            URI longUri = new URI(longUrl);
+            return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT)
+                    .location(longUri).build();
+        } catch (URISyntaxException e) {
+            httpStatus = HttpStatus.BAD_REQUEST;
+            statusResponse = new StatusResponse(
+                    ShortUrlMappingStatus.BAD_LONG_URL_SYNTAX,
+                    String.format("Long URL '%s' has invalid syntax", longUrl)
+            );
+            return new ResponseEntity<StatusResponse>(statusResponse, httpStatus);
+        }
     }
 
     // ------------------------------------------------------------------------

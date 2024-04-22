@@ -93,3 +93,13 @@ Resources:
           Properties:
             Path: /
             Method: GET
+        RedirectShortUrlToLongUrlViaApiGatewayOrLocalHost:
+          Type: Api
+          Properties:
+            Path: /shorturl/mappings/{proxy+}
+            Method: GET
+        RedirectShortUrlToLongUrlViaCustomDomain:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: GET

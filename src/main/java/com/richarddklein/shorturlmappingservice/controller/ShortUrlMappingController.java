@@ -81,4 +81,21 @@ public interface ShortUrlMappingController {
     @GetMapping("")
     ResponseEntity<StatusAndShortUrlMappingArrayResponse>
     getSpecificShortUrlMapping(@RequestBody ShortUrlMapping shortUrlMapping);
+
+    /**
+     * Redirect a short URL to the corresponding long URL.
+     *
+     * Retrieve the specified Short URL Mapping item from the Short URL Mapping
+     * repository, and perform a 302 (temporary) redirect to the corresponding
+     * long URL. (Temporary because the mapping may change in the future.)
+     *
+     * @param shortUrl The short URL that is to be redirected.
+     * @return On success, a Response Entity with an HTTP status code of 302
+     * (temporary redirect) and a Location header pointing to the corresponding
+     * long URL. On failure, a Response Entity describing the reason for the
+     * failure.
+     */
+    @GetMapping("/{shortUrl}")
+    ResponseEntity<?>
+    redirectShortUrlToLongUrl(@PathVariable String shortUrl);
 }

@@ -13,6 +13,7 @@ package com.richarddklein.shorturlmappingservice.response;
  */
 public enum ShortUrlMappingStatus {
     SUCCESS,
+    BAD_LONG_URL_SYNTAX,
     NO_LONG_URL_SPECIFIED,
     NO_SHORT_URL_IS_AVAILABLE,
     NO_SUCH_LONG_URL,
