@@ -156,6 +156,13 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
                     ShortUrlMappingStatus.NO_SUCH_LONG_URL,
                     String.format("Long URL '%s' was not found", longUrl)
             );
+        } else if (shortUrlMappingStatus ==
+                ShortUrlMappingStatus.NO_SUCH_MAPPING) {
+            httpStatus = HttpStatus.NOT_FOUND;
+            statusResponse = new StatusResponse(
+                    ShortUrlMappingStatus.NO_SUCH_MAPPING,
+                    String.format("Mapping '%s' => '%s' was not found", shortUrl, longUrl)
+            );
         } else {
             httpStatus = HttpStatus.OK;
             statusResponse = new StatusResponse(
