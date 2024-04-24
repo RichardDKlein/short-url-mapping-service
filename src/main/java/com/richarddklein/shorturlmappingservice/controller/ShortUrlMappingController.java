@@ -90,12 +90,24 @@ public interface ShortUrlMappingController {
      * long URL. (Temporary because the mapping may change in the future.)
      *
      * @param shortUrl The short URL that is to be redirected.
-     * @return On success, a Response Entity with an HTTP status code of 302
-     * (temporary redirect) and a Location header pointing to the corresponding
-     * long URL. On failure, a Response Entity describing the reason for the
-     * failure.
+     * @return On success, an HTTP Response Entity with an HTTP status code of
+     * 302 (temporary redirect) and a Location header pointing to the corresponding
+     * long URL. On failure, a Response Entity describing the reason for the failure.
      */
     @GetMapping("/{shortUrl}")
     ResponseEntity<?>
     redirectShortUrlToLongUrl(@PathVariable String shortUrl);
+
+    /**
+     * Delete a Short URL Mapping item from the repository.
+     *
+     * @param shortUrl The short URL property of the Short URL Mapping item to be
+     *                 deleted from the repository.
+     * @return An HTTP Response Entity containing the status (success or failure)
+     * of the Short URL Mapping deletion operation, and the deleted Short URL
+     * Mapping item if the operation was successful.
+     */
+    @DeleteMapping("/{shortUrl}")
+    ResponseEntity<StatusAndShortUrlMappingResponse>
+    deleteShortUrlMapping(@PathVariable String shortUrl);
 }

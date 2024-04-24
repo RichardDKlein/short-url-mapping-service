@@ -103,3 +103,13 @@ Resources:
           Properties:
             Path: /{proxy+}
             Method: GET
+        DeleteShortUrlMappingViaApiGatewayOrLocalHost:
+          Type: Api
+          Properties:
+            Path: /shorturl/mappings/{proxy+}
+            Method: DELETE
+        DeleteShortUrlMappingViaCustomDomain:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: GET

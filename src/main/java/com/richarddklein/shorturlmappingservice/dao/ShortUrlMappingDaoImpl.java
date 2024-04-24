@@ -5,20 +5,14 @@
 
 package com.richarddklein.shorturlmappingservice.dao;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
 import org.springframework.stereotype.Repository;
 
 import software.amazon.awssdk.core.pagination.sync.SdkIterable;
 import software.amazon.awssdk.enhanced.dynamodb.*;
-import software.amazon.awssdk.enhanced.dynamodb.model.CreateTableEnhancedRequest;
-import software.amazon.awssdk.enhanced.dynamodb.model.Page;
-import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedResponse;
-import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
+import software.amazon.awssdk.enhanced.dynamodb.model.*;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 import software.amazon.awssdk.services.dynamodb.waiters.DynamoDbWaiter;
@@ -99,8 +93,8 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
      *                             is to play the role of reading parameters from
      *                             the Parameter Store component of the AWS Simple
      *                             System Manager (SSM).
-     * @param dynamoDbClient Dependency injection of a class instance that is to
-     *                       play the role of a DynamoDB Client.
+     * @param dynamoDbClient       Dependency injection of a class instance that is to
+     *                             play the role of a DynamoDB Client.
      * @param shortUrlMappingTable Dependency injection of a class instance that
      *                             is to model the Short URL Mapping table in
      *                             DynamoDB.
@@ -178,7 +172,8 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
                             matchingMappings.add(item1);
                         }
                     }
-                };
+                }
+                ;
                 if (matchingMappings.isEmpty()) {
                     shortUrlMappingStatus = ShortUrlMappingStatus.NO_SUCH_MAPPING;
                 }
@@ -186,6 +181,21 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
         }
         result[0] = shortUrlMappingStatus;
         result[1] = matchingMappings;
+
+        return result;
+    }
+
+    @Override
+    public Object[] deleteShortUrlMapping(String shortUrl) {
+        Object[] result = new Object[2];
+
+        ShortUrlMapping deletedMapping = deleteMatchingShortUrl(shortUrl);
+        ShortUrlMappingStatus shortUrlMappingStatus = (deletedMapping == null) ?
+                ShortUrlMappingStatus.NO_SUCH_SHORT_URL : ShortUrlMappingStatus.SUCCESS;
+
+        result[0] = shortUrlMappingStatus;
+        result[1] = deletedMapping;
+
         return result;
     }
 
@@ -243,12 +253,13 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
 
     /**
      * Find matching short URLs.
-     *
-     * Find all Short URL Mapping items in the repository whose `shortUrl`
-     * property matches the given one.
+     * <p>
+     * Find all Short URL Mapping items (there should be at most one) in the
+     * repository whose `shortUrl` property matches the given one.
      *
      * @param shortUrl The short URL to be matched.
-     * @return A list of all matching Short URL Mapping items.
+     * @return A list of all matching Short URL Mapping items (there should
+     * be at most one).
      */
     private List<ShortUrlMapping> findMatchingShortUrls(String shortUrl) {
         QueryConditional queryConditional = QueryConditional
@@ -262,7 +273,7 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
 
     /**
      * Find matching long URLs.
-     *
+     * <p>
      * Find all Short URL Mapping items in the repository whose `longUrl`
      * property matches the given one.
      *
@@ -279,5 +290,29 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
         List<ShortUrlMapping> matchingLongUrls = new ArrayList<>();
         results.forEach(page -> matchingLongUrls.addAll(page.items()));
         return matchingLongUrls;
+    }
+
+    /**
+     * Delete matching short URL.
+     *
+     * Delete the Short URL Mapping item in the repository whose `shortUrl`
+     * property matches the given one.
+     *
+     * @param shortUrl The short URL to be matched.
+     * @return The Short URL Mapping item that was deleted (or `null` if
+     * there was no matching Short URL Mapping item).
+     */
+    private ShortUrlMapping deleteMatchingShortUrl(String shortUrl) {
+        QueryConditional queryConditional = QueryConditional
+                .keyEqualTo(Key.builder().partitionValue(shortUrl).build());
+        SdkIterable<ShortUrlMapping> results = shortUrlMappingTable.query(
+                req -> req.queryConditional(queryConditional)).items();
+        ShortUrlMapping deletedItem = results.iterator().hasNext() ?
+                results.iterator().next() : null;
+        if (deletedItem != null) {
+            shortUrlMappingTable.deleteItem(req ->
+                    req.key(shortUrlMappingTable.keyFrom(deletedItem)));
+        }
+        return deletedItem;
     }
 }

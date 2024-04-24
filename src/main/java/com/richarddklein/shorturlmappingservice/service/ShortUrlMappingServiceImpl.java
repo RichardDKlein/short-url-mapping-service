@@ -76,6 +76,11 @@ public class ShortUrlMappingServiceImpl implements ShortUrlMappingService {
         return shortUrlMappingDao.getSpecificShortUrlMappings(shortUrlMapping);
     }
 
+    @Override
+    public Object[] deleteShortUrlMapping(String shortUrl) {
+        return shortUrlMappingDao.deleteShortUrlMapping(shortUrl);
+    }
+
     // ------------------------------------------------------------------------
     // PRIVATE METHODS
     // ------------------------------------------------------------------------

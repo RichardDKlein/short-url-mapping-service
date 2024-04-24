@@ -216,6 +216,37 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
         }
     }
 
+    @Override
+    public ResponseEntity<StatusAndShortUrlMappingResponse> deleteShortUrlMapping(String shortUrl) {
+        Object[] statusAndShortUrlMapping = shortUrlMappingService.deleteShortUrlMapping(shortUrl);
+
+        HttpStatus httpStatus;
+        StatusResponse statusResponse;
+        ShortUrlMappingStatus shortUrlMappingStatus =
+                (ShortUrlMappingStatus)statusAndShortUrlMapping[0];
+        ShortUrlMapping shortUrlMapping =
+                (ShortUrlMapping)statusAndShortUrlMapping[1];
+
+        if (shortUrlMappingStatus == ShortUrlMappingStatus.NO_SUCH_SHORT_URL) {
+            httpStatus = HttpStatus.NOT_FOUND;
+            statusResponse = new StatusResponse(
+                    ShortUrlMappingStatus.NO_SUCH_SHORT_URL,
+                    String.format("Short URL '%s' was not found", shortUrl)
+            );
+        } else {
+            httpStatus = HttpStatus.OK;
+            statusResponse = new StatusResponse(
+                    ShortUrlMappingStatus.SUCCESS,
+                    "Short URL Mapping item(s) successfully deleted"
+            );
+        }
+
+        StatusAndShortUrlMappingResponse statusAndShortUrlMappingResponse =
+                new StatusAndShortUrlMappingResponse(statusResponse, shortUrlMapping);
+
+        return new ResponseEntity<>(statusAndShortUrlMappingResponse, httpStatus);
+    }
+
     // ------------------------------------------------------------------------
     // PRIVATE METHODS
     // ------------------------------------------------------------------------
