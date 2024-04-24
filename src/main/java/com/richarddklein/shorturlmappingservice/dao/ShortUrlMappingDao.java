@@ -5,6 +5,8 @@
 
 package com.richarddklein.shorturlmappingservice.dao;
 
+import java.util.List;
+
 import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
 import com.richarddklein.shorturlmappingservice.response.ShortUrlMappingStatus;
 
@@ -52,6 +54,16 @@ public interface ShortUrlMappingDao {
      * the query parameters specified in the `shortUrlMapping` parameter.
      */
     Object[] getSpecificShortUrlMappings(ShortUrlMapping shortUrlMapping);
+
+    /**
+     * Get all Short URL Mapping items.
+     *
+     * Retrieve all Short URL Mapping items from the repository.
+     *
+     * @return A List (possibly empty) of all the Short URL Mapping items
+     * in the repository.
+     */
+    List<ShortUrlMapping> getAllShortUrlMappings();
 
     /**
      * Delete a Short URL Mapping item from the repository.

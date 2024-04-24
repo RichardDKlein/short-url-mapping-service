@@ -180,6 +180,18 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
     }
 
     @Override
+    public ResponseEntity<StatusAndShortUrlMappingArrayResponse> getAllShortUrlMappings() {
+        List<ShortUrlMapping> shortUrlMappings =
+                shortUrlMappingService.getAllShortUrlMappings();
+        StatusResponse status = new StatusResponse(
+                ShortUrlMappingStatus.SUCCESS,
+                "All short URL mappings successfully retrieved");
+        StatusAndShortUrlMappingArrayResponse response =
+                new StatusAndShortUrlMappingArrayResponse(status, shortUrlMappings);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @Override
     public ResponseEntity<?> redirectShortUrlToLongUrl(String shortUrl) {
         ShortUrlMapping shortUrlMapping = new ShortUrlMapping(shortUrl, "");
 

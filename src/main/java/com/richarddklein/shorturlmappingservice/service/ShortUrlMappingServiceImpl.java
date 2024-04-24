@@ -5,6 +5,8 @@
 
 package com.richarddklein.shorturlmappingservice.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.richarddklein.shorturlmappingservice.dao.ShortUrlMappingDao;
@@ -74,6 +76,11 @@ public class ShortUrlMappingServiceImpl implements ShortUrlMappingService {
     @Override
     public Object[] getSpecificShortUrlMappings(ShortUrlMapping shortUrlMapping) {
         return shortUrlMappingDao.getSpecificShortUrlMappings(shortUrlMapping);
+    }
+
+    @Override
+    public List<ShortUrlMapping> getAllShortUrlMappings() {
+        return shortUrlMappingDao.getAllShortUrlMappings();
     }
 
     @Override

@@ -186,6 +186,15 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
     }
 
     @Override
+    public List<ShortUrlMapping> getAllShortUrlMappings() {
+        List<ShortUrlMapping> result = new ArrayList<>();
+        // do `.scan(req -> req.consistentRead(true))` if
+        // the user is admin
+        shortUrlMappingTable.scan().items().forEach(result::add);
+        return result;
+    }
+
+    @Override
     public Object[] deleteShortUrlMapping(String shortUrl) {
         Object[] result = new Object[2];
 

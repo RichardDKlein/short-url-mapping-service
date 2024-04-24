@@ -78,9 +78,23 @@ public interface ShortUrlMappingController {
      * failure) of the Short URL Mapping retrieval operation, and the
      * retrieved Short URL Mapping item(s) if the operation was successful.
      */
-    @GetMapping("")
+    @GetMapping("/specific")
     ResponseEntity<StatusAndShortUrlMappingArrayResponse>
     getSpecificShortUrlMapping(@RequestBody ShortUrlMapping shortUrlMapping);
+
+    /**
+     * Get all short URL mappings.
+     *
+     * Retrieve all Short URL Mapping items from the Short URL Mapping
+     * repository.
+     *
+     * @return An HTTP Response Entity containing the status (success or
+     * failure) of the Short URL Mapping retrieval operation, and the
+     * retrieved Short URL Mapping items if the operation was successful.
+     */
+    @GetMapping("/all")
+    ResponseEntity<StatusAndShortUrlMappingArrayResponse>
+    getAllShortUrlMappings();
 
     /**
      * Redirect a short URL to the corresponding long URL.

@@ -86,12 +86,22 @@ Resources:
         GetSpecificShortUrlMappingViaApiGatewayOrLocalHost:
           Type: Api
           Properties:
-            Path: /shorturl/mappings
+            Path: /shorturl/mappings/specific
             Method: GET
         GetSpecificShortUrlMappingViaCustomDomain:
           Type: Api
           Properties:
-            Path: /
+            Path: /specific
+            Method: GET
+        GetAllShortUrlMappingsViaApiGatewayOrLocalHost:
+          Type: Api
+          Properties:
+            Path: /shorturl/mappings/all
+            Method: GET
+        GetAllShortUrlMappingsViaCustomDomain:
+          Type: Api
+          Properties:
+            Path: /all
             Method: GET
         RedirectShortUrlToLongUrlViaApiGatewayOrLocalHost:
           Type: Api
