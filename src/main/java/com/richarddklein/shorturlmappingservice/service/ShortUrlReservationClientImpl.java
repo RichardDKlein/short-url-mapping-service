@@ -70,10 +70,11 @@ public class ShortUrlReservationClientImpl implements ShortUrlReservationClient 
             }
             return new ShortUrlReservationResult(
                     ShortUrlMappingStatus.SUCCESS, reservationShortUrl);
+
         } catch (Exception e) {
             System.out.printf("====> e.getMessage = %s\n", e.getMessage());
             e.printStackTrace();
-            if (e.getMessage().contains("NO_SHORT_URL_IS_AVAILABLE")) {
+            if (e.getMessage().contains("404 Not Found")) {
                 return new ShortUrlReservationResult(
                         ShortUrlMappingStatus.NO_SHORT_URL_IS_AVAILABLE, null);
             }
@@ -87,38 +88,42 @@ public class ShortUrlReservationClientImpl implements ShortUrlReservationClient 
                                                          String shortUrl) {
         String shortUrlReservationServiceBaseUrl =
                 getShortUrlReservationServiceBaseUrl(isRunningLocally);
-        String url = String.format("%s/reserve/specific/%s", shortUrlReservationServiceBaseUrl, shortUrl);
 
-        ResponseEntity<String> responseEntity;
+        WebClient webClient = WebClient.builder()
+                .baseUrl(shortUrlReservationServiceBaseUrl)
+                .build();
+
+        Mono<String> responseMono = webClient.patch()
+                .uri(String.format("/reserve/specific/%s", shortUrl))
+                .retrieve()
+                .bodyToMono(String.class);
+
         try {
-            responseEntity = restTemplate.exchange(
-                    url, HttpMethod.PATCH, null, String.class);
+            String responseBody = responseMono.block();
+            System.out.printf("====> responseBody = %s\n", responseBody);
+            ObjectMapper objectMapper = new ObjectMapper();
+            ReserveAnyShortUrlApiResponse reserveAnyShortUrlApiResponse =
+                    objectMapper.readValue(responseBody, ReserveAnyShortUrlApiResponse.class);
+
+            String reservationStatus =
+                    reserveAnyShortUrlApiResponse.getStatus().getStatus();
+
+            if (!reservationStatus.equals("SUCCESS")) {
+                return ShortUrlMappingStatus.UNKNOWN_SHORT_URL_RESERVATION_ERROR;
+            }
+            return ShortUrlMappingStatus.SUCCESS;
+
         } catch (Exception e) {
-            if (e.getMessage().contains("SHORT_URL_NOT_FOUND")) {
+            System.out.printf("====> e.getMessage = %s\n", e.getMessage());
+            e.printStackTrace();
+            if (e.getMessage().contains("404 Not Found")) {
                 return ShortUrlMappingStatus.SHORT_URL_NOT_VALID;
             }
-            if (e.getMessage().contains("SHORT_URL_FOUND_BUT_NOT_AVAILABLE")) {
+            if (e.getMessage().contains("409 Conflict")) {
                 return ShortUrlMappingStatus.SHORT_URL_ALREADY_TAKEN;
             }
             return ShortUrlMappingStatus.UNKNOWN_SHORT_URL_RESERVATION_ERROR;
         }
-
-        String responseBody = responseEntity.getBody();
-        ObjectMapper objectMapper = new ObjectMapper();
-        String reservationStatus = null;
-
-        try {
-            Status status = objectMapper.readValue(responseBody, Status.class);
-            reservationStatus = status.getStatus();
-        } catch (Exception e) {  // should never happen
-            e.printStackTrace();
-        }
-
-        if (!reservationStatus.equals("SUCCESS")) {
-            return ShortUrlMappingStatus.UNKNOWN_SHORT_URL_RESERVATION_ERROR;
-        }
-
-        return ShortUrlMappingStatus.SUCCESS;
     }
 
     // ------------------------------------------------------------------------
