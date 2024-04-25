@@ -14,9 +14,8 @@ import com.richarddklein.shorturlmappingservice.response.StatusAndShortUrlMappin
 import com.richarddklein.shorturlmappingservice.response.StatusAndShortUrlMappingResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.*;
-
-import jakarta.servlet.http.HttpServletRequest;
 
 import com.richarddklein.shorturlmappingservice.response.StatusResponse;
 import com.richarddklein.shorturlmappingservice.service.ShortUrlMappingService;
@@ -50,8 +49,8 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
 
     @Override
     public ResponseEntity<StatusResponse>
-    initializeShortUrlMappingRepository(HttpServletRequest request) {
-        if (isRunningLocally(request.getRemoteAddr())) {
+    initializeShortUrlMappingRepository(ServerHttpRequest request) {
+        if (isRunningLocally(request.getRemoteAddress().getHostString())) {
             shortUrlMappingService.initializeShortUrlMappingRepository();
             StatusResponse response = new StatusResponse(
                     ShortUrlMappingStatus.SUCCESS,
@@ -70,12 +69,13 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
 
     @Override
     public ResponseEntity<StatusAndShortUrlMappingResponse>
-    createShortUrlMapping(HttpServletRequest request,
+    createShortUrlMapping(ServerHttpRequest request,
                           ShortUrlMapping shortUrlMapping) {
 
         ShortUrlMappingStatus shortUrlMappingStatus =
                 shortUrlMappingService.createShortUrlMapping(
-                        isRunningLocally(request.getRemoteAddr()), shortUrlMapping);
+                        isRunningLocally(request.getRemoteAddress().getHostString()),
+                        shortUrlMapping);
 
         String shortUrl = shortUrlMapping.getShortUrl();
         HttpStatus httpStatus;
@@ -229,8 +229,10 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
     }
 
     @Override
-    public ResponseEntity<StatusAndShortUrlMappingResponse> deleteShortUrlMapping(String shortUrl) {
-        Object[] statusAndShortUrlMapping = shortUrlMappingService.deleteShortUrlMapping(shortUrl);
+    public ResponseEntity<StatusAndShortUrlMappingResponse>
+    deleteShortUrlMapping(String shortUrl) {
+        Object[] statusAndShortUrlMapping =
+                shortUrlMappingService.deleteShortUrlMapping(shortUrl);
 
         HttpStatus httpStatus;
         StatusResponse statusResponse;
@@ -269,11 +271,10 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
      * Determine whether the Short URL Mapping Service is running
      * on your local machine, or in the AWS cloud.
      *
-     * @param remoteAddr The IP address of the machine that sent the
-     *                   HTTP request.
+     * @param hostString The host that sent the HTTP request.
      * @return 'true' if the service is running locally, 'false' otherwise.
      */
-    private boolean isRunningLocally(String remoteAddr) {
-        return remoteAddr.equals("127.0.0.1");
+    private boolean isRunningLocally(String hostString) {
+        return hostString.contains("localhost");
     }
 }

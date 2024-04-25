@@ -12,8 +12,11 @@ import com.richarddklein.shorturlmappingservice.response.shorturlreservationserv
 import com.richarddklein.shorturlmappingservice.response.shorturlreservationservice.ShortUrlReservationResult;
 import com.richarddklein.shorturlmappingservice.response.shorturlreservationservice.Status;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 /**
  * The production implementation of the Short URL Reservation Client interface.
@@ -39,41 +42,44 @@ public class ShortUrlReservationClientImpl implements ShortUrlReservationClient 
     public ShortUrlReservationResult reserveAnyShortUrl(boolean isRunningLocally) {
         String shortUrlReservationServiceBaseUrl =
                 getShortUrlReservationServiceBaseUrl(isRunningLocally);
-        String url = String.format("%s/reserve/any", shortUrlReservationServiceBaseUrl);
 
-        ResponseEntity<String> responseEntity;
+        WebClient webClient = WebClient.builder()
+                .baseUrl(shortUrlReservationServiceBaseUrl)
+                .build();
+
+        Mono<String> responseMono = webClient.patch()
+                .uri("/reserve/any")
+                .retrieve()
+                .bodyToMono(String.class);
+
         try {
-            responseEntity = restTemplate.exchange(
-                    url, HttpMethod.PUT, null, String.class);
+            String responseBody = responseMono.block();
+            System.out.printf("====> responseBody = %s\n", responseBody);
+            ObjectMapper objectMapper = new ObjectMapper();
+            ReserveAnyShortUrlApiResponse reserveAnyShortUrlApiResponse =
+                    objectMapper.readValue(responseBody, ReserveAnyShortUrlApiResponse.class);
+
+            String reservationStatus =
+                    reserveAnyShortUrlApiResponse.getStatus().getStatus();
+            String reservationShortUrl =
+                    reserveAnyShortUrlApiResponse.getShortUrlReservation().getShortUrl();
+
+            if (!reservationStatus.equals("SUCCESS")) {
+                return new ShortUrlReservationResult(ShortUrlMappingStatus
+                        .UNKNOWN_SHORT_URL_RESERVATION_ERROR, null);
+            }
+            return new ShortUrlReservationResult(
+                    ShortUrlMappingStatus.SUCCESS, reservationShortUrl);
         } catch (Exception e) {
+            System.out.printf("====> e.getMessage = %s\n", e.getMessage());
+            e.printStackTrace();
             if (e.getMessage().contains("NO_SHORT_URL_IS_AVAILABLE")) {
                 return new ShortUrlReservationResult(
                         ShortUrlMappingStatus.NO_SHORT_URL_IS_AVAILABLE, null);
             }
-            return new ShortUrlReservationResult(
-                    ShortUrlMappingStatus.UNKNOWN_SHORT_URL_RESERVATION_ERROR, null);
+            return new ShortUrlReservationResult(ShortUrlMappingStatus
+                    .UNKNOWN_SHORT_URL_RESERVATION_ERROR, null);
         }
-
-        String responseBody = responseEntity.getBody();
-        ObjectMapper objectMapper = new ObjectMapper();
-        String reservationStatus = null;
-        String reservationShortUrl = null;
-
-        try {
-            ReserveAnyShortUrlApiResponse reserveAnyShortUrlApiResponse =
-                    objectMapper.readValue(responseBody, ReserveAnyShortUrlApiResponse.class);
-            reservationStatus = reserveAnyShortUrlApiResponse.getStatus().getStatus();
-            reservationShortUrl = reserveAnyShortUrlApiResponse.getShortUrlReservation().getShortUrl();
-        } catch (Exception e) {  // should never happen
-            e.printStackTrace();
-        }
-
-        if (!reservationStatus.equals("SUCCESS")) {
-            return new ShortUrlReservationResult(
-                    ShortUrlMappingStatus.UNKNOWN_SHORT_URL_RESERVATION_ERROR, null);
-        }
-
-        return new ShortUrlReservationResult(ShortUrlMappingStatus.SUCCESS, reservationShortUrl);
     }
 
     @Override
@@ -86,7 +92,7 @@ public class ShortUrlReservationClientImpl implements ShortUrlReservationClient 
         ResponseEntity<String> responseEntity;
         try {
             responseEntity = restTemplate.exchange(
-                    url, HttpMethod.PUT, null, String.class);
+                    url, HttpMethod.PATCH, null, String.class);
         } catch (Exception e) {
             if (e.getMessage().contains("SHORT_URL_NOT_FOUND")) {
                 return ShortUrlMappingStatus.SHORT_URL_NOT_VALID;

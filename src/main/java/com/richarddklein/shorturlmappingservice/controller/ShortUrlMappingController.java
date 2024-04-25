@@ -9,9 +9,8 @@ import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
 import com.richarddklein.shorturlmappingservice.response.StatusAndShortUrlMappingArrayResponse;
 import com.richarddklein.shorturlmappingservice.response.StatusAndShortUrlMappingResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.*;
-
-import jakarta.servlet.http.HttpServletRequest;
 
 import com.richarddklein.shorturlmappingservice.response.StatusResponse;
 
@@ -40,7 +39,7 @@ public interface ShortUrlMappingController {
      */
     @PostMapping("/dbinit")
     ResponseEntity<StatusResponse>
-    initializeShortUrlMappingRepository(HttpServletRequest request);
+    initializeShortUrlMappingRepository(ServerHttpRequest request);
 
     /**
      * Create a short URL mapping.
@@ -60,7 +59,7 @@ public interface ShortUrlMappingController {
      */
     @PostMapping("")
     ResponseEntity<StatusAndShortUrlMappingResponse>
-    createShortUrlMapping(HttpServletRequest request,
+    createShortUrlMapping(ServerHttpRequest request,
                           @RequestBody ShortUrlMapping shortUrlMapping);
 
     /**
