@@ -195,6 +195,20 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
     }
 
     @Override
+    public ShortUrlMappingStatus updateLongUrl(String shortUrl, String newLongUrl) {
+        ShortUrlMapping updatedShortUrlMapping;
+        do {
+            ShortUrlMapping shortUrlMapping = findMatchingShortUrls(shortUrl).get(0);
+            if (shortUrlMapping == null) {
+                return ShortUrlMappingStatus.NO_SUCH_SHORT_URL;
+            }
+            shortUrlMapping.setLongUrl(newLongUrl);
+            updatedShortUrlMapping = updateShortUrlMapping(shortUrlMapping);
+        } while (updatedShortUrlMapping == null);
+        return ShortUrlMappingStatus.SUCCESS;
+    }
+
+    @Override
     public Object[] deleteShortUrlMapping(String shortUrl) {
         Object[] result = new Object[2];
 
@@ -323,5 +337,29 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
                     req.key(shortUrlMappingTable.keyFrom(deletedItem)));
         }
         return deletedItem;
+    }
+
+    /**
+     * Update a Short URL Mapping item.
+     *
+     * In the Short URL Mapping table in DynamoDB, update a specified
+     * Short URL Mapping item.
+     *
+     * @param shortUrlMapping The Short URL Mapping item that is to be
+     *                        used to update DynamoDB.
+     * @return The updated Short URL Mapping item, or `null` if the
+     * update failed. (The update can fail if someone else is updating
+     * the same item concurrently.)
+     */
+    private ShortUrlMapping updateShortUrlMapping(ShortUrlMapping shortUrlMapping) {
+        try {
+            return shortUrlMappingTable.updateItem(req -> req.item(shortUrlMapping));
+        } catch (ConditionalCheckFailedException e) {
+            // Version check failed. Someone updated the ShortUrlMapping
+            // item in the database after we read the item, so the item we
+            // just tried to update contains stale data.
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
 }

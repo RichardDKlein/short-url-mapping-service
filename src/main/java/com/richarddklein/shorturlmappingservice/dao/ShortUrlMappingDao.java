@@ -66,6 +66,16 @@ public interface ShortUrlMappingDao {
     List<ShortUrlMapping> getAllShortUrlMappings();
 
     /**
+     * Update a long URL.
+     *
+     * @param shortUrl The short URL whose long URL is to be updatd.
+     * @param newLongUrl The new long URL.
+     * @return A status code indicating the success/failure status of the
+     * update operation.
+     */
+    ShortUrlMappingStatus updateLongUrl(String shortUrl, String newLongUrl);
+
+    /**
      * Delete a Short URL Mapping item from the repository.
      *
      * @param shortUrl The short URL property of the Short URL Mapping
