@@ -9,6 +9,11 @@ import java.util.List;
 
 import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
 import com.richarddklein.shorturlmappingservice.response.ShortUrlMappingStatus;
+import com.richarddklein.shorturlmappingservice.response.StatusAndShortUrlMappingResponse;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  * The Short URL Mapping Service interface.
@@ -67,6 +72,16 @@ public interface ShortUrlMappingService {
      * in the repository.
      */
     List<ShortUrlMapping> getAllShortUrlMappings();
+
+    /**
+     * Update a long URL.
+     *
+     * @param shortUrl The short URL whose long URL is to be updated.
+     * @param newLongUrl The new long URL.
+     * @return A status code indicating the success/failure status of the
+     * update operation.
+     */
+    ShortUrlMappingStatus updateLongUrl(String shortUrl, String newLongUrl);
 
     /**
      * Delete a Short URL Mapping item from the repository.

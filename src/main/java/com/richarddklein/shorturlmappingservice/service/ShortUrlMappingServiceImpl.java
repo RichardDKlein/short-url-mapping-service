@@ -84,6 +84,11 @@ public class ShortUrlMappingServiceImpl implements ShortUrlMappingService {
     }
 
     @Override
+    public ShortUrlMappingStatus updateLongUrl(String shortUrl, String newLongUrl) {
+        return shortUrlMappingDao.updateLongUrl(shortUrl, newLongUrl);
+    }
+
+    @Override
     public Object[] deleteShortUrlMapping(String shortUrl) {
         return shortUrlMappingDao.deleteShortUrlMapping(shortUrl);
     }

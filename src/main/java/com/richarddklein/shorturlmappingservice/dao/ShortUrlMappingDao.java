@@ -68,7 +68,7 @@ public interface ShortUrlMappingDao {
     /**
      * Update a long URL.
      *
-     * @param shortUrl The short URL whose long URL is to be updatd.
+     * @param shortUrl The short URL whose long URL is to be updated.
      * @param newLongUrl The new long URL.
      * @return A status code indicating the success/failure status of the
      * update operation.

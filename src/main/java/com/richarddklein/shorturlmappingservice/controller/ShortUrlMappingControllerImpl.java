@@ -229,6 +229,38 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
     }
 
     @Override
+    public ResponseEntity<StatusResponse>
+    updateLongUrl(String shortUrl, ShortUrlMapping shortUrlMapping) {
+        String newLongUrl = shortUrlMapping.getLongUrl();
+        ShortUrlMappingStatus shortUrlMappingStatus =
+                shortUrlMappingService.updateLongUrl(shortUrl, newLongUrl);
+
+        HttpStatus httpStatus;
+        StatusResponse statusResponse;
+
+        if (shortUrlMappingStatus == ShortUrlMappingStatus.NO_SUCH_SHORT_URL) {
+            httpStatus = HttpStatus.NOT_FOUND;
+            statusResponse = new StatusResponse(
+                    ShortUrlMappingStatus.NO_SUCH_SHORT_URL,
+                    String.format("Short URL '%s' was not found", shortUrl)
+            );
+        } else if (shortUrlMappingStatus == ShortUrlMappingStatus.NO_LONG_URL_SPECIFIED) {
+            httpStatus = HttpStatus.BAD_REQUEST;
+            statusResponse = new StatusResponse(
+                    ShortUrlMappingStatus.NO_LONG_URL_SPECIFIED,
+                    "No new long URL was specified"
+            );
+        } else {
+            httpStatus = HttpStatus.OK;
+            statusResponse = new StatusResponse(
+                    ShortUrlMappingStatus.SUCCESS,
+                    "Long URL successfully updated"
+            );
+        }
+        return new ResponseEntity<>(statusResponse, httpStatus);
+    }
+
+    @Override
     public ResponseEntity<StatusAndShortUrlMappingResponse>
     deleteShortUrlMapping(String shortUrl) {
         Object[] statusAndShortUrlMapping =

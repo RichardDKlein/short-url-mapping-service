@@ -196,6 +196,9 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
 
     @Override
     public ShortUrlMappingStatus updateLongUrl(String shortUrl, String newLongUrl) {
+        if (newLongUrl == null || newLongUrl.isEmpty()) {
+            return ShortUrlMappingStatus.NO_LONG_URL_SPECIFIED;
+        }
         ShortUrlMapping updatedShortUrlMapping;
         do {
             List<ShortUrlMapping> shortUrlMappings = findMatchingShortUrls(shortUrl);

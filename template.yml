@@ -113,6 +113,16 @@ Resources:
           Properties:
             Path: /{proxy+}
             Method: GET
+        UpdateLongUrlViaApiGatewayOrLocalHost:
+          Type: Api
+          Properties:
+            Path: /shorturl/mappings/{proxy+}
+            Method: PATCH
+        UpdateLongUrlViaCustomDomain:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: PATCH
         DeleteShortUrlMappingViaApiGatewayOrLocalHost:
           Type: Api
           Properties:

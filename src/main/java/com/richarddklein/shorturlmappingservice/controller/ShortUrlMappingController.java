@@ -6,6 +6,7 @@
 package com.richarddklein.shorturlmappingservice.controller;
 
 import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
+import com.richarddklein.shorturlmappingservice.response.ShortUrlMappingStatus;
 import com.richarddklein.shorturlmappingservice.response.StatusAndShortUrlMappingArrayResponse;
 import com.richarddklein.shorturlmappingservice.response.StatusAndShortUrlMappingResponse;
 import org.springframework.http.ResponseEntity;
@@ -110,6 +111,19 @@ public interface ShortUrlMappingController {
     @GetMapping("/{shortUrl}")
     ResponseEntity<?>
     redirectShortUrlToLongUrl(@PathVariable String shortUrl);
+
+    /**
+     * Update a long URL.
+     *
+     * @param shortUrl The short URL whose long URL is to be updated.
+     * @param shortUrlMapping A data structure containing the new long URL.
+     * @return A status code indicating the success/failure status of the
+     * update operation.
+     */
+    @PatchMapping("/{shortUrl}")
+    ResponseEntity<StatusResponse>
+    updateLongUrl(@PathVariable String shortUrl,
+                  @RequestBody ShortUrlMapping shortUrlMapping);
 
     /**
      * Delete a Short URL Mapping item from the repository.
