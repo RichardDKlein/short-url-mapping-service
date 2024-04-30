@@ -132,4 +132,14 @@ Resources:
           Type: Api
           Properties:
             Path: /{proxy+}
-            Method: GET
+            Method: DELETE
+        DeleteAllShortUrlMappingsViaApiGatewayOrLocalHost:
+          Type: Api
+          Properties:
+            Path: /shorturl/mappings/all
+            Method: DELETE
+        DeleteAllShortUrlMappingsViaCustomDomain:
+          Type: Api
+          Properties:
+            Path: /all
+            Method: DELETE

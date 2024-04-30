@@ -96,4 +96,12 @@ public interface ShortUrlMappingService {
      * will be null.
      */
     Object[] deleteShortUrlMapping(String shortUrl);
+
+    /**
+     * Delete all Short URL Mapping items from the repository.
+     *
+     * @return A status code indicating the success/failure status of the
+     * delete operation.
+     */
+    ShortUrlMappingStatus deleteAllShortUrlMappings();
 }

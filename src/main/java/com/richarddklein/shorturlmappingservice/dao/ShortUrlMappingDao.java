@@ -21,7 +21,7 @@ import com.richarddklein.shorturlmappingservice.response.ShortUrlMappingStatus;
 public interface ShortUrlMappingDao {
     /**
      * Initialize the Short URL Reservation repository.
-     *
+     * <p>
      * Delete any existing Short URL Mapping table from the repository,
      * and create a new, empty one.
      */
@@ -57,7 +57,7 @@ public interface ShortUrlMappingDao {
 
     /**
      * Get all Short URL Mapping items.
-     *
+     * <p>
      * Retrieve all Short URL Mapping items from the repository.
      *
      * @return A List (possibly empty) of all the Short URL Mapping items
@@ -68,7 +68,7 @@ public interface ShortUrlMappingDao {
     /**
      * Update a long URL.
      *
-     * @param shortUrl The short URL whose long URL is to be updated.
+     * @param shortUrl   The short URL whose long URL is to be updated.
      * @param newLongUrl The new long URL.
      * @return A status code indicating the success/failure status of the
      * update operation.
@@ -88,4 +88,12 @@ public interface ShortUrlMappingDao {
      * will be null.
      */
     Object[] deleteShortUrlMapping(String shortUrl);
+
+    /**
+     * Delete all Short URL Mapping items from the repository.
+     *
+     * @return A status code indicating the success/failure status of the
+     * delete operation.
+     */
+    ShortUrlMappingStatus deleteAllShortUrlMappings();
 }

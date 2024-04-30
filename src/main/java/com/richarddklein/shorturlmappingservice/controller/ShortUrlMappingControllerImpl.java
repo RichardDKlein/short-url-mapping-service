@@ -9,6 +9,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import com.richarddklein.shorturlmappingservice.dao.ShortUrlMappingDao;
 import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
 import com.richarddklein.shorturlmappingservice.response.StatusAndShortUrlMappingArrayResponse;
 import com.richarddklein.shorturlmappingservice.response.StatusAndShortUrlMappingResponse;
@@ -291,6 +292,30 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
                 new StatusAndShortUrlMappingResponse(statusResponse, shortUrlMapping);
 
         return new ResponseEntity<>(statusAndShortUrlMappingResponse, httpStatus);
+    }
+
+    @Override
+    public ResponseEntity<StatusResponse> deleteAllShortUrlMappings() {
+        ShortUrlMappingStatus shortUrlMappingStatus =
+                shortUrlMappingService.deleteAllShortUrlMappings();
+
+        HttpStatus httpStatus;
+        StatusResponse statusResponse;
+
+        if (shortUrlMappingStatus != ShortUrlMappingStatus.SUCCESS) {
+            httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+            statusResponse = new StatusResponse(
+                    ShortUrlMappingStatus.UNKNOWN_SHORT_URL_MAPPING_ERROR,
+                    "There was a problem deleting the Short URL Mapping items"
+            );
+        } else {
+            httpStatus = HttpStatus.OK;
+            statusResponse = new StatusResponse(
+                    ShortUrlMappingStatus.SUCCESS,
+                    "All Short URL Mapping items successfully deleted"
+            );
+        }
+        return new ResponseEntity<>(statusResponse, httpStatus);
     }
 
     // ------------------------------------------------------------------------

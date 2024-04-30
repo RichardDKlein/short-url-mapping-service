@@ -77,6 +77,8 @@ import com.richarddklein.shorturlmappingservice.response.ShortUrlMappingStatus;
 @Repository
 public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
     private static final String LONG_URL_INDEX_NAME = "longUrl-index";
+    private static final int MAX_BATCH_SIZE = 25;
+
     private final ParameterStoreReader parameterStoreReader;
     private final DynamoDbClient dynamoDbClient;
     private final DynamoDbEnhancedClient dynamoDbEnhancedClient;
@@ -224,6 +226,16 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
         result[1] = deletedMapping;
 
         return result;
+    }
+
+    @Override
+    public ShortUrlMappingStatus deleteAllShortUrlMappings() {
+        List<ShortUrlMapping> allItems = getAllShortUrlMappings();
+        for (ShortUrlMapping item : allItems) {
+            shortUrlMappingTable.deleteItem(r -> r.key(
+                    k -> k.partitionValue(item.getShortUrl())));
+        }
+        return ShortUrlMappingStatus.SUCCESS;
     }
 
     // ------------------------------------------------------------------------

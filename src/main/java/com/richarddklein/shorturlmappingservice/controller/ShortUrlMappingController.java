@@ -117,8 +117,8 @@ public interface ShortUrlMappingController {
      *
      * @param shortUrl The short URL whose long URL is to be updated.
      * @param shortUrlMapping A data structure containing the new long URL.
-     * @return A status code indicating the success/failure status of the
-     * update operation.
+     * @return An HTTP Response Entity containing the status (success
+     * or failure) of the update operation.
      */
     @PatchMapping("/{shortUrl}")
     ResponseEntity<StatusResponse>
@@ -137,4 +137,14 @@ public interface ShortUrlMappingController {
     @DeleteMapping("/{shortUrl}")
     ResponseEntity<StatusAndShortUrlMappingResponse>
     deleteShortUrlMapping(@PathVariable String shortUrl);
+
+    /**
+     * Delete all Short URL Mapping items from the repository.
+     *
+     * @return An HTTP Response Entity containing the status (successor failure) of
+     * the delete operation.
+     */
+    @DeleteMapping("/all")
+    ResponseEntity<StatusResponse>
+    deleteAllShortUrlMappings();
 }
