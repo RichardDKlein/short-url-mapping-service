@@ -128,6 +128,7 @@ public interface ShortUrlMappingController {
     /**
      * Delete a Short URL Mapping item from the repository.
      *
+     * @param request The HTTP Request sent by the client.
      * @param shortUrl The short URL property of the Short URL Mapping item to be
      *                 deleted from the repository.
      * @return An HTTP Response Entity containing the status (success or failure)
@@ -136,15 +137,16 @@ public interface ShortUrlMappingController {
      */
     @DeleteMapping("/{shortUrl}")
     ResponseEntity<StatusAndShortUrlMappingResponse>
-    deleteShortUrlMapping(@PathVariable String shortUrl);
+    deleteShortUrlMapping(ServerHttpRequest request, @PathVariable String shortUrl);
 
     /**
      * Delete all Short URL Mapping items from the repository.
      *
+     * @param request The HTTP Request sent by the client.
      * @return An HTTP Response Entity containing the status (successor failure) of
      * the delete operation.
      */
     @DeleteMapping("/all")
     ResponseEntity<StatusResponse>
-    deleteAllShortUrlMappings();
+    deleteAllShortUrlMappings(ServerHttpRequest request);
 }

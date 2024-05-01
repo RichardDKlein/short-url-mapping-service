@@ -133,7 +133,6 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
     @Override
     public ResponseEntity<StatusAndShortUrlMappingArrayResponse>
     getSpecificShortUrlMapping(ShortUrlMapping shortUrlMapping) {
-
         Object[] statusAndShortUrlMappings =
                 shortUrlMappingService.getSpecificShortUrlMappings(shortUrlMapping);
 
@@ -263,9 +262,11 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
 
     @Override
     public ResponseEntity<StatusAndShortUrlMappingResponse>
-    deleteShortUrlMapping(String shortUrl) {
+    deleteShortUrlMapping(ServerHttpRequest request, String shortUrl) {
         Object[] statusAndShortUrlMapping =
-                shortUrlMappingService.deleteShortUrlMapping(shortUrl);
+                shortUrlMappingService.deleteShortUrlMapping(
+                        isRunningLocally(request.getRemoteAddress().getHostString()),
+                        shortUrl);
 
         HttpStatus httpStatus;
         StatusResponse statusResponse;
@@ -280,11 +281,23 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
                     ShortUrlMappingStatus.NO_SUCH_SHORT_URL,
                     String.format("Short URL '%s' was not found", shortUrl)
             );
+        } else if (shortUrlMappingStatus == ShortUrlMappingStatus.SHORT_URL_NOT_IN_USE) {
+            httpStatus = HttpStatus.CONFLICT;
+            statusResponse = new StatusResponse(
+                    ShortUrlMappingStatus.SHORT_URL_NOT_IN_USE,
+                    String.format("Short URL '%s' is not currently in use", shortUrl)
+            );
+        } else if (shortUrlMappingStatus != ShortUrlMappingStatus.SUCCESS) {
+            httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+            statusResponse = new StatusResponse(
+                    ShortUrlMappingStatus.UNKNOWN_SHORT_URL_MAPPING_ERROR,
+                    "Unknown error while deleting Short URL Mapping item"
+            );
         } else {
             httpStatus = HttpStatus.OK;
             statusResponse = new StatusResponse(
                     ShortUrlMappingStatus.SUCCESS,
-                    "Short URL Mapping item(s) successfully deleted"
+                    "Short URL Mapping item successfully deleted"
             );
         }
 
@@ -295,9 +308,12 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
     }
 
     @Override
-    public ResponseEntity<StatusResponse> deleteAllShortUrlMappings() {
+    public ResponseEntity<StatusResponse> deleteAllShortUrlMappings(
+            ServerHttpRequest request) {
+
         ShortUrlMappingStatus shortUrlMappingStatus =
-                shortUrlMappingService.deleteAllShortUrlMappings();
+                shortUrlMappingService.deleteAllShortUrlMappings(
+                        isRunningLocally(request.getRemoteAddress().getHostString()));
 
         HttpStatus httpStatus;
         StatusResponse statusResponse;

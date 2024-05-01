@@ -42,4 +42,20 @@ public interface ShortUrlReservationClient {
      */
     ShortUrlMappingStatus reserveSpecificShortUrl(boolean isRunningLocally,
                                                   String shortUrl);
+
+    /**
+     * Cancel reservation of specific short URL.
+     *
+     * Request the Short URL Reservation Service to cancel the reservation
+     * of a specific short URL.
+     *
+     * @param isRunningLocally 'true' if the Short URL Reservation Service
+     *                         is running on your local machine, 'false'
+     *                         otherwise.
+     * @param shortUrl The specific short URL whose reservation is to be
+     *                 canceled.
+     * @return The success/failure status of the cancellation operation.
+     */
+    ShortUrlMappingStatus cancelSpecificShortUrl(boolean isRunningLocally,
+                                                 String shortUrl);
 }

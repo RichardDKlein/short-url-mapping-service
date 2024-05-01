@@ -86,6 +86,9 @@ public interface ShortUrlMappingService {
     /**
      * Delete a Short URL Mapping item from the repository.
      *
+     * @param isRunningLocally 'true' if the Short URL Mapping service is
+     *                         running on your local machine, 'false'
+     *                         otherwise.
      * @param shortUrl The short URL property of the Short URL Mapping
      *                 item to be deleted.
      * @return An array consisting of two Objects. Objects[0] is a status
@@ -95,13 +98,16 @@ public interface ShortUrlMappingService {
      * was successful. If the deletion was not successful, then Objects[1]
      * will be null.
      */
-    Object[] deleteShortUrlMapping(String shortUrl);
+    Object[] deleteShortUrlMapping(boolean isRunningLocally, String shortUrl);
 
     /**
      * Delete all Short URL Mapping items from the repository.
      *
+     * @param isRunningLocally 'true' if the Short URL Mapping service is
+     *                         running on your local machine, 'false'
+     *                         otherwise.
      * @return A status code indicating the success/failure status of the
      * delete operation.
      */
-    ShortUrlMappingStatus deleteAllShortUrlMappings();
+    ShortUrlMappingStatus deleteAllShortUrlMappings(boolean isRunningLocally);
 }

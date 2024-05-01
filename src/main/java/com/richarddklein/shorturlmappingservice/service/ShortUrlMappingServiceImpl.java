@@ -89,13 +89,38 @@ public class ShortUrlMappingServiceImpl implements ShortUrlMappingService {
     }
 
     @Override
-    public Object[] deleteShortUrlMapping(String shortUrl) {
+    public Object[] deleteShortUrlMapping(boolean isRunningLocally, String shortUrl) {
+        ShortUrlMapping shortUrlMapping = new ShortUrlMapping();
+        shortUrlMapping.setShortUrl(shortUrl);
+
+        Object[] doesMappingExist =
+                shortUrlMappingDao.getSpecificShortUrlMappings(shortUrlMapping);
+
+        if ((ShortUrlMappingStatus)doesMappingExist[0] != ShortUrlMappingStatus.SUCCESS) {
+            return doesMappingExist;
+        }
+
+        ShortUrlMappingStatus status = shortUrlReservationClient
+                .cancelSpecificShortUrl(isRunningLocally, shortUrl);
+
+        if (status != ShortUrlMappingStatus.SUCCESS) {
+            return new Object[] {status, null};
+        }
+
         return shortUrlMappingDao.deleteShortUrlMapping(shortUrl);
     }
 
     @Override
-    public ShortUrlMappingStatus deleteAllShortUrlMappings() {
-        return shortUrlMappingDao.deleteAllShortUrlMappings();
+    public ShortUrlMappingStatus deleteAllShortUrlMappings(boolean isRunningLocally) {
+        List<ShortUrlMapping> allItems = getAllShortUrlMappings();
+        for (ShortUrlMapping item : allItems) {
+            Object[] result = deleteShortUrlMapping(isRunningLocally, item.getShortUrl());
+            ShortUrlMappingStatus shortUrlMappingStatus = (ShortUrlMappingStatus)result[0];
+            if (shortUrlMappingStatus != ShortUrlMappingStatus.SUCCESS) {
+                return ShortUrlMappingStatus.UNKNOWN_SHORT_URL_MAPPING_ERROR;
+            }
+        }
+        return ShortUrlMappingStatus.SUCCESS;
     }
 
     // ------------------------------------------------------------------------

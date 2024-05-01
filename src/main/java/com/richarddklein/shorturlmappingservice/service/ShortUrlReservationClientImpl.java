@@ -8,9 +8,7 @@ package com.richarddklein.shorturlmappingservice.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.richarddklein.shorturlmappingservice.dao.ParameterStoreReader;
 import com.richarddklein.shorturlmappingservice.response.ShortUrlMappingStatus;
-import com.richarddklein.shorturlmappingservice.response.shorturlreservationservice.ReserveAnyShortUrlApiResponse;
-import com.richarddklein.shorturlmappingservice.response.shorturlreservationservice.ShortUrlReservationResult;
-import com.richarddklein.shorturlmappingservice.response.shorturlreservationservice.Status;
+import com.richarddklein.shorturlmappingservice.response.shorturlreservationservice.*;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -54,7 +52,6 @@ public class ShortUrlReservationClientImpl implements ShortUrlReservationClient 
 
         try {
             String responseBody = responseMono.block();
-            System.out.printf("====> responseBody = %s\n", responseBody);
             ObjectMapper objectMapper = new ObjectMapper();
             ReserveAnyShortUrlApiResponse reserveAnyShortUrlApiResponse =
                     objectMapper.readValue(responseBody, ReserveAnyShortUrlApiResponse.class);
@@ -100,13 +97,12 @@ public class ShortUrlReservationClientImpl implements ShortUrlReservationClient 
 
         try {
             String responseBody = responseMono.block();
-            System.out.printf("====> responseBody = %s\n", responseBody);
             ObjectMapper objectMapper = new ObjectMapper();
-            ReserveAnyShortUrlApiResponse reserveAnyShortUrlApiResponse =
-                    objectMapper.readValue(responseBody, ReserveAnyShortUrlApiResponse.class);
+            ReserveSpecificShortUrlApiResponse reserveSpecificShortUrlApiResponse =
+                    objectMapper.readValue(responseBody, ReserveSpecificShortUrlApiResponse.class);
 
             String reservationStatus =
-                    reserveAnyShortUrlApiResponse.getStatus().getStatus();
+                    reserveSpecificShortUrlApiResponse.getStatus().getStatus();
 
             if (!reservationStatus.equals("SUCCESS")) {
                 return ShortUrlMappingStatus.UNKNOWN_SHORT_URL_RESERVATION_ERROR;
@@ -123,6 +119,41 @@ public class ShortUrlReservationClientImpl implements ShortUrlReservationClient 
                 return ShortUrlMappingStatus.SHORT_URL_ALREADY_TAKEN;
             }
             return ShortUrlMappingStatus.UNKNOWN_SHORT_URL_RESERVATION_ERROR;
+        }
+    }
+
+    @Override
+    public ShortUrlMappingStatus cancelSpecificShortUrl(boolean isRunningLocally,
+                                                        String shortUrl) {
+        String shortUrlReservationServiceBaseUrl =
+                getShortUrlReservationServiceBaseUrl(isRunningLocally);
+
+        WebClient webClient = WebClient.builder()
+                .baseUrl(shortUrlReservationServiceBaseUrl)
+                .build();
+
+        Mono<String> responseMono = webClient.patch()
+                .uri(String.format("/cancel/specific/%s", shortUrl))
+                .retrieve()
+                .bodyToMono(String.class);
+
+        try {
+            String responseBody = responseMono.block();
+            ObjectMapper objectMapper = new ObjectMapper();
+            Status cancelSpecificShortUrlApiResponse =
+                    objectMapper.readValue(responseBody, Status.class);
+
+            String reservationStatus =
+                    cancelSpecificShortUrlApiResponse.getStatus();
+
+            if (!reservationStatus.equals("SUCCESS")) {
+                return ShortUrlMappingStatus.UNKNOWN_SHORT_URL_MAPPING_ERROR;
+            }
+            return ShortUrlMappingStatus.SUCCESS;
+
+        } catch (Exception e) {
+            System.out.printf("====> e.getMessage = %s\n", e.getMessage());
+            return ShortUrlMappingStatus.UNKNOWN_SHORT_URL_MAPPING_ERROR;
         }
     }
 

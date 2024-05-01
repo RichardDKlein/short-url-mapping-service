@@ -228,16 +228,6 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
         return result;
     }
 
-    @Override
-    public ShortUrlMappingStatus deleteAllShortUrlMappings() {
-        List<ShortUrlMapping> allItems = getAllShortUrlMappings();
-        for (ShortUrlMapping item : allItems) {
-            shortUrlMappingTable.deleteItem(r -> r.key(
-                    k -> k.partitionValue(item.getShortUrl())));
-        }
-        return ShortUrlMappingStatus.SUCCESS;
-    }
-
     // ------------------------------------------------------------------------
     // PRIVATE METHODS
     // ------------------------------------------------------------------------
