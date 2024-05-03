@@ -1,5 +1,14 @@
+/**
+ * The Short URL Mapping Service
+ * (Copyright 2024 by Richard Klein)
+ */
+
 package com.richarddklein.shorturlmappingservice.response.shorturlreservationservice;
 
+/**
+ * Class defining the Short URL Reservation object sent by the Short URL Reservation
+ * service in response to a request to reserve a short URL.
+ */
 public class ShortUrlReservation {
     private String shortUrl;
     private String isAvailable;

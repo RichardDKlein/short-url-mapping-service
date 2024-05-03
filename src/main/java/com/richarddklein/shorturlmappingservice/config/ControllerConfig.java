@@ -5,11 +5,12 @@
 
 package com.richarddklein.shorturlmappingservice.config;
 
-import com.richarddklein.shorturlmappingservice.controller.ShortUrlMappingController;
-import com.richarddklein.shorturlmappingservice.controller.ShortUrlMappingControllerImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import com.richarddklein.shorturlmappingservice.controller.ShortUrlMappingController;
+import com.richarddklein.shorturlmappingservice.controller.ShortUrlMappingControllerImpl;
 
 /**
  * The Controller @Configuration class.

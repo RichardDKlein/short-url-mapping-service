@@ -14,7 +14,6 @@ import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
 import com.richarddklein.shorturlmappingservice.response.ShortUrlMappingStatus;
 import com.richarddklein.shorturlmappingservice.response.shorturlreservationservice.ShortUrlReservationResult;
 
-
 /**
  * The production implementation of the Short URL Mapping Service interface.
  */

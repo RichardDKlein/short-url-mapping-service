@@ -5,23 +5,21 @@
 
 package com.richarddklein.shorturlmappingservice.service;
 
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import reactor.core.publisher.Mono;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.richarddklein.shorturlmappingservice.dao.ParameterStoreReader;
 import com.richarddklein.shorturlmappingservice.response.ShortUrlMappingStatus;
 import com.richarddklein.shorturlmappingservice.response.shorturlreservationservice.*;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 /**
  * The production implementation of the Short URL Reservation Client interface.
  */
 public class ShortUrlReservationClientImpl implements ShortUrlReservationClient {
     private final ParameterStoreReader parameterStoreReader;
-    private final RestTemplate restTemplate;
 
     // ------------------------------------------------------------------------
     // PUBLIC METHODS
@@ -30,10 +28,8 @@ public class ShortUrlReservationClientImpl implements ShortUrlReservationClient 
     /**
      * General constructor.
      */
-    public ShortUrlReservationClientImpl(ParameterStoreReader parameterStoreReader,
-                                         RestTemplate restTemplate) {
+    public ShortUrlReservationClientImpl(ParameterStoreReader parameterStoreReader) {
         this.parameterStoreReader = parameterStoreReader;
-        this.restTemplate = restTemplate;
     }
 
     @Override

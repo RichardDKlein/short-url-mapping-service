@@ -7,7 +7,6 @@ package com.richarddklein.shorturlmappingservice.dao;
 
 import java.util.*;
 
-import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
 import org.springframework.stereotype.Repository;
 
 import software.amazon.awssdk.core.pagination.sync.SdkIterable;
@@ -17,6 +16,7 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 import software.amazon.awssdk.services.dynamodb.waiters.DynamoDbWaiter;
 
+import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
 import com.richarddklein.shorturlmappingservice.response.ShortUrlMappingStatus;
 
 /**
@@ -95,8 +95,11 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
      *                             is to play the role of reading parameters from
      *                             the Parameter Store component of the AWS Simple
      *                             System Manager (SSM).
-     * @param dynamoDbClient       Dependency injection of a class instance that is to
-     *                             play the role of a DynamoDB Client.
+     * @param dynamoDbClient Dependency injection of a class instance that is to
+     *                       play the role of a DynamoDB Client.
+     * @param dynamoDbEnhancedClient Dependency injection of a class instance that
+     *                               is to play the role of a DynamoDB Enhanced
+     *                               Client.
      * @param shortUrlMappingTable Dependency injection of a class instance that
      *                             is to model the Short URL Mapping table in
      *                             DynamoDB.

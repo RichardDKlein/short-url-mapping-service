@@ -5,7 +5,6 @@
 
 package com.richarddklein.shorturlmappingservice.config;
 
-import com.richarddklein.shorturlmappingservice.dao.ShortUrlMappingDaoImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,10 +15,11 @@ import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.ssm.SsmClient;
 
-import com.richarddklein.shorturlmappingservice.dao.ShortUrlMappingDao;
-import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
 import com.richarddklein.shorturlmappingservice.dao.ParameterStoreReader;
 import com.richarddklein.shorturlmappingservice.dao.ParameterStoreReaderImpl;
+import com.richarddklein.shorturlmappingservice.dao.ShortUrlMappingDao;
+import com.richarddklein.shorturlmappingservice.dao.ShortUrlMappingDaoImpl;
+import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
 
 /**
  * The DAO (Data Access Object) @Configuration class.

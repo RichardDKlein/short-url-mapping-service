@@ -110,9 +110,9 @@ public class ShortUrlMapping {
     /**
      * Convert to an attribute-value map.
      *
-     * Convert this Short URL Mapping entity to an attribute-value Map
+     * <p>Convert this Short URL Mapping entity to an attribute-value Map
      * containing entries that specify the values of the `shortUrl`,
-     * `longUrl`, and `version` attributes.
+     * `longUrl`, and `version` attributes.</p>
      *
      * @return the attribute-value Map corresponding to this Short URL
      * Mapping entity.

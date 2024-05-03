@@ -9,11 +9,6 @@ import java.util.List;
 
 import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
 import com.richarddklein.shorturlmappingservice.response.ShortUrlMappingStatus;
-import com.richarddklein.shorturlmappingservice.response.StatusAndShortUrlMappingResponse;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  * The Short URL Mapping Service interface.

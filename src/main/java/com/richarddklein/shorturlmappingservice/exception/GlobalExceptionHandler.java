@@ -43,8 +43,8 @@ public class GlobalExceptionHandler {
     /**
      * Handle all other exceptions.
      *
-     * Handle all exceptions that are not handled by the above exception
-     * handlers.
+     * <p>Handle all exceptions that are not handled by the above exception
+     * handlers.</p>
      *
      * @param e The exception to be handled.
      * @return An HTTP Response Entity containing an error message as well
