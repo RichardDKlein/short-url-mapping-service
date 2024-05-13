@@ -20,7 +20,7 @@ public interface ShortUrlMappingService {
     /**
      * Initialize the Short URL Mapping repository.
      *
-     * <p></p>This is a synchronous method. It will return only when the
+     * <p>This is a synchronous method. It will return only when the
      * initialization has completed successfully, or has failed.</p>
      */
     void initializeShortUrlMappingRepository();
