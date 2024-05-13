@@ -43,7 +43,7 @@ public class ShortUrlMapping {
     }
 
     /**
-     * General constructor #1.
+     * General constructor.
      *
      * Construct a Short URL Mapping entity from parameters specifying
      * the value of the `shortUrl` and `longUrl` attributes.
@@ -54,21 +54,6 @@ public class ShortUrlMapping {
     public ShortUrlMapping(String shortUrl, String longUrl) {
         this.shortUrl = shortUrl;
         this.longUrl = longUrl;
-    }
-
-    /**
-     * General constructor #2.
-     *
-     * Construct a Short URL Mapping entity from a Map containing
-     * entries that specify the values of the `shortUrl` and `longUrl`
-     * attributes.
-     *
-     * @param item The Map containing the entries that specify the values
-     *             of the `shortUrl` and `longUrl` attributes.
-     */
-    public ShortUrlMapping(Map<String, AttributeValue> item) {
-        shortUrl = item.get("shortUrl").s();
-        longUrl = item.get("longUrl").s();
     }
 
     @DynamoDbPartitionKey
