@@ -21,9 +21,9 @@ import com.richarddklein.shorturlmappingservice.response.ShortUrlMappingStatus;
 public interface ShortUrlMappingDao {
     /**
      * Initialize the Short URL Reservation repository.
-     * <p>
-     * Delete any existing Short URL Mapping table from the repository,
-     * and create a new, empty one.
+     *
+     * <p>Delete any existing Short URL Mapping table from the repository,
+     * and create a new, empty one.</p>
      */
     void initializeShortUrlMappingRepository();
 
