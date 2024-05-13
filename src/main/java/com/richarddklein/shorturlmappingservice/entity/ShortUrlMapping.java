@@ -24,21 +24,13 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 @DynamoDbBean
 public class ShortUrlMapping {
     /**
-     * The `shortUrl` attribute. See the `ShortUrlMappingDaoImpl`
-     * Javadoc for a detailed description of this attribute.
+     * The Short URL Mapping item attributes. See the
+     * `ShortUrlMappingDaoImpl` Javadoc for a detailed
+     * description of these attributes.
      */
     private String shortUrl;
-
-    /**
-     * The `longUrl` attribute. See the `ShortUrlMappingDaoImpl`
-     * Javadoc for a detailed description of this attribute.
-     */
     private String longUrl;
 
-    /**
-     * The `version` attribute. See the `ShortUrlMappingDaoImpl`
-     * Javadoc for a detailed description of this attribute.
-     */
     @JsonIgnore
     private Long version;
 
