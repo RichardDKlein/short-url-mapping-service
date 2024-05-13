@@ -84,25 +84,6 @@ public class ShortUrlMapping {
         this.version = version;
     }
 
-    /**
-     * Convert to an attribute-value map.
-     *
-     * <p>Convert this Short URL Mapping entity to an attribute-value Map
-     * containing entries that specify the values of the `shortUrl`,
-     * `longUrl`, and `version` attributes.</p>
-     *
-     * @return the attribute-value Map corresponding to this Short URL
-     * Mapping entity.
-     */
-    public Map<String, AttributeValue> toAttributeValueMap() {
-        Map<String, AttributeValue> attributeValues = new HashMap<>();
-        attributeValues.put("shortUrl", AttributeValue.builder().s(shortUrl).build());
-        attributeValues.put("longUrl", AttributeValue.builder().s(longUrl).build());
-        attributeValues.put("version", AttributeValue.builder().n(version.toString()).build());
-
-        return attributeValues;
-    }
-
     @Override
     public String toString() {
         return "ShortUrlMapping{" +
