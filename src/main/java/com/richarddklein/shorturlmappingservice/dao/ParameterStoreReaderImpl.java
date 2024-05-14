@@ -24,10 +24,6 @@ public class ParameterStoreReaderImpl implements ParameterStoreReader {
 
     private final SsmClient ssmClient;
 
-    private String shortUrlMappingTableName;
-    private String shortUrlReservationServiceBaseUrlLocal;
-    private String shortUrlReservationServiceBaseUrlAws;
-
     /**
      * General constructor.
      *
@@ -36,33 +32,21 @@ public class ParameterStoreReaderImpl implements ParameterStoreReader {
      */
     public ParameterStoreReaderImpl(SsmClient ssmClient) {
         this.ssmClient = ssmClient;
-        loadParameters();
     }
 
     @Override
     public String getShortUrlMappingTableName() {
-        return shortUrlMappingTableName;
+        return getParameter(SHORT_URL_MAPPING_TABLE_NAME);
     }
 
     @Override
     public String getShortUrlReservationServiceBaseUrlLocal() {
-        return shortUrlReservationServiceBaseUrlLocal;
+        return getParameter(SHORT_URL_RESERVATION_SERVICE_BASE_URL_LOCAL);
     }
 
     @Override
     public String getShortUrlReservationServiceBaseUrlAws() {
-        return shortUrlReservationServiceBaseUrlAws;
-    }
-
-    /**
-     * Load all parameters from the Parameter Store.
-     */
-    private void loadParameters() {
-        shortUrlMappingTableName = getParameter(SHORT_URL_MAPPING_TABLE_NAME);
-        shortUrlReservationServiceBaseUrlLocal =
-                getParameter(SHORT_URL_RESERVATION_SERVICE_BASE_URL_LOCAL);
-        shortUrlReservationServiceBaseUrlAws =
-                getParameter(SHORT_URL_RESERVATION_SERVICE_BASE_URL_AWS);
+        return getParameter(SHORT_URL_RESERVATION_SERVICE_BASE_URL_AWS);
     }
 
     /**

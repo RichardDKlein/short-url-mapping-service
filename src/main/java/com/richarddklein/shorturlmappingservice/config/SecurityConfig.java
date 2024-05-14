@@ -14,11 +14,10 @@ import org.springframework.security.web.server.context.NoOpServerSecurityContext
 public class SecurityConfig {
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-        return http.securityContextRepository(
-                NoOpServerSecurityContextRepository.getInstance())
-                .authorizeExchange(authorize -> authorize
-                        .anyExchange().permitAll() // authenticated() // Secure all endpoints
-                )
+        return http
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
+                .authorizeExchange(authorize -> authorize.anyExchange().permitAll()) // authenticated() // Secure all endpoints
                 .build();
     }
 }
