@@ -126,16 +126,21 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
 
     @Override
     public ShortUrlMappingStatus createShortUrlMapping(ShortUrlMapping shortUrlMapping) {
-        PutItemEnhancedResponse<ShortUrlMapping> response =
-                shortUrlMappingTable.putItemWithResponse(req -> req
-                        .item(shortUrlMapping)
-                        .conditionExpression(Expression.builder()
-                                .expression("attribute_not_exists(shortUrl)")
-                                .build())
-                        .returnConsumedCapacity(ReturnConsumedCapacity.TOTAL));
-        return (response.consumedCapacity().capacityUnits() > 0) ?
-                ShortUrlMappingStatus.SUCCESS :
-                ShortUrlMappingStatus.SHORT_URL_ALREADY_TAKEN; // should never happen
+        try {
+            shortUrlMappingTable.putItem(req -> req
+                    .item(shortUrlMapping)
+                    .conditionExpression(Expression.builder()
+                            .expression("attribute_not_exists(shortUrl)")
+                            .build())
+                    .returnConsumedCapacity(ReturnConsumedCapacity.TOTAL));
+            return ShortUrlMappingStatus.SUCCESS;
+        } catch (ConditionalCheckFailedException e) {
+            // This should never happen. If the request specified a short URL that is
+            // already taken, that fact should have already been discovered in the
+            // Service layer when it asked the Short URL Reservation Service to reserve
+            // that short URL.
+            return ShortUrlMappingStatus.SHORT_URL_ALREADY_TAKEN;
+        }
     }
 
     @Override

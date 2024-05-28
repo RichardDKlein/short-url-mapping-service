@@ -70,7 +70,7 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
     @Override
     public ResponseEntity<StatusAndShortUrlMappingResponse>
     createShortUrlMapping(ServerHttpRequest request,
-                          ShortUrlMapping shortUrlMapping) {
+                          @RequestBody ShortUrlMapping shortUrlMapping) {
 
         ShortUrlMappingStatus shortUrlMappingStatus =
                 shortUrlMappingService.createShortUrlMapping(
@@ -131,7 +131,7 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
 
     @Override
     public ResponseEntity<StatusAndShortUrlMappingArrayResponse>
-    getSpecificShortUrlMapping(ShortUrlMapping shortUrlMapping) {
+    getSpecificShortUrlMapping(@RequestBody ShortUrlMapping shortUrlMapping) {
         Object[] statusAndShortUrlMappings =
                 shortUrlMappingService.getSpecificShortUrlMappings(shortUrlMapping);
 
@@ -179,7 +179,8 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
     }
 
     @Override
-    public ResponseEntity<StatusAndShortUrlMappingArrayResponse> getAllShortUrlMappings() {
+    public ResponseEntity<StatusAndShortUrlMappingArrayResponse>
+    getAllShortUrlMappings() {
         List<ShortUrlMapping> shortUrlMappings =
                 shortUrlMappingService.getAllShortUrlMappings();
         StatusResponse status = new StatusResponse(
@@ -191,7 +192,8 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
     }
 
     @Override
-    public ResponseEntity<?> redirectShortUrlToLongUrl(String shortUrl) {
+    public ResponseEntity<?>
+    redirectShortUrlToLongUrl(String shortUrl) {
         ShortUrlMapping shortUrlMapping = new ShortUrlMapping(shortUrl, "");
 
         Object[] statusAndShortUrlMappings =
@@ -229,7 +231,7 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
 
     @Override
     public ResponseEntity<StatusResponse>
-    updateLongUrl(String shortUrl, ShortUrlMapping shortUrlMapping) {
+    updateLongUrl(String shortUrl, @RequestBody ShortUrlMapping shortUrlMapping) {
         String newLongUrl = shortUrlMapping.getLongUrl();
         ShortUrlMappingStatus shortUrlMappingStatus =
                 shortUrlMappingService.updateLongUrl(shortUrl, newLongUrl);
@@ -307,9 +309,8 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
     }
 
     @Override
-    public ResponseEntity<StatusResponse> deleteAllShortUrlMappings(
-            ServerHttpRequest request) {
-
+    public ResponseEntity<StatusResponse>
+    deleteAllShortUrlMappings(ServerHttpRequest request) {
         ShortUrlMappingStatus shortUrlMappingStatus =
                 shortUrlMappingService.deleteAllShortUrlMappings(
                         isRunningLocally(request.getRemoteAddress().getHostString()));
