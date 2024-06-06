@@ -21,20 +21,4 @@ public interface ParameterStoreReader {
      * database.
      */
     String getShortUrlMappingTableName();
-
-    /**
-     * Get the base URL of the Short URL Reservation Service when
-     * that service is running on your local machine.
-     *
-     * @return The base URL.
-     */
-    String getShortUrlReservationServiceBaseUrlLocal();
-
-    /**
-     * Get the base URL of the Short URL Reservation Service when
-     * that service is running on AWS.
-     *
-     * @return The base URL.
-     */
-    String getShortUrlReservationServiceBaseUrlAws();
 }

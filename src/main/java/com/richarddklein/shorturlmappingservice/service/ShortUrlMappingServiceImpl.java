@@ -7,12 +7,14 @@ package com.richarddklein.shorturlmappingservice.service;
 
 import java.util.List;
 
+import com.richarddklein.shorturlwebclientlibrary.shorturlreservationservice.client.ShortUrlReservationClient;
+import com.richarddklein.shorturlwebclientlibrary.shorturlreservationservice.dto.ShortUrlReservationResult;
+import com.richarddklein.shorturlwebclientlibrary.shorturlreservationservice.dto.ShortUrlReservationStatus;
 import org.springframework.stereotype.Service;
 
 import com.richarddklein.shorturlmappingservice.dao.ShortUrlMappingDao;
 import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
 import com.richarddklein.shorturlmappingservice.response.ShortUrlMappingStatus;
-import com.richarddklein.shorturlmappingservice.response.shorturlreservationservice.ShortUrlReservationResult;
 
 /**
  * The production implementation of the Short URL Mapping Service interface.
@@ -58,15 +60,17 @@ public class ShortUrlMappingServiceImpl implements ShortUrlMappingService {
         if (shortUrl == null) {
             ShortUrlReservationResult shortUrlReservationResult =
                     shortUrlReservationClient.reserveAnyShortUrl(isRunningLocally);
-            if (shortUrlReservationResult.status != ShortUrlMappingStatus.SUCCESS) {
-                return shortUrlReservationResult.status;
+            if (shortUrlReservationResult.status != ShortUrlReservationStatus.SUCCESS) {
+                return convertReservationStatusToMappingStatus(
+                        shortUrlReservationResult.status);
             }
             shortUrlMapping.setShortUrl(shortUrlReservationResult.shortUrl);
         } else {
-            ShortUrlMappingStatus status = shortUrlReservationClient
-                    .reserveSpecificShortUrl(isRunningLocally, shortUrl);
-            if (status != ShortUrlMappingStatus.SUCCESS) {
-                return status;
+            ShortUrlReservationStatus shortUrlReservationStatus =
+                    shortUrlReservationClient.reserveSpecificShortUrl(
+                            isRunningLocally, shortUrl);
+            if (shortUrlReservationStatus != ShortUrlReservationStatus.SUCCESS) {
+                return convertReservationStatusToMappingStatus(shortUrlReservationStatus);
             }
         }
         return shortUrlMappingDao.createShortUrlMapping(shortUrlMapping);
@@ -99,13 +103,13 @@ public class ShortUrlMappingServiceImpl implements ShortUrlMappingService {
             return doesMappingExist;
         }
 
-        ShortUrlMappingStatus status = shortUrlReservationClient
-                .cancelSpecificShortUrl(isRunningLocally, shortUrl);
+        ShortUrlReservationStatus shortUrlReservationStatus =
+                shortUrlReservationClient.cancelSpecificShortUrl(isRunningLocally, shortUrl);
 
-        if (status != ShortUrlMappingStatus.SUCCESS) {
-            return new Object[] {status, null};
+        if (shortUrlReservationStatus != ShortUrlReservationStatus.SUCCESS) {
+            return new Object[] {convertReservationStatusToMappingStatus(
+                    shortUrlReservationStatus), null};
         }
-
         return shortUrlMappingDao.deleteShortUrlMapping(shortUrl);
     }
 
@@ -125,4 +129,34 @@ public class ShortUrlMappingServiceImpl implements ShortUrlMappingService {
     // ------------------------------------------------------------------------
     // PRIVATE METHODS
     // ------------------------------------------------------------------------
+
+    ShortUrlMappingStatus convertReservationStatusToMappingStatus(
+            ShortUrlReservationStatus shortUrlReservationStatus) {
+
+        ShortUrlMappingStatus mappingStatus;
+        switch (shortUrlReservationStatus) {
+            case ShortUrlReservationStatus.SUCCESS:
+                mappingStatus = ShortUrlMappingStatus.SUCCESS;
+                break;
+            case ShortUrlReservationStatus.SHORT_URL_NOT_FOUND:
+                mappingStatus = ShortUrlMappingStatus.SHORT_URL_NOT_VALID;
+                break;
+            case ShortUrlReservationStatus.SHORT_URL_FOUND_BUT_NOT_AVAILABLE:
+                mappingStatus = ShortUrlMappingStatus.SHORT_URL_ALREADY_TAKEN;
+                break;
+            case ShortUrlReservationStatus.SHORT_URL_FOUND_BUT_NOT_RESERVED:
+                mappingStatus = ShortUrlMappingStatus.SHORT_URL_NOT_IN_USE;
+                break;
+            case ShortUrlReservationStatus.NO_SHORT_URL_IS_AVAILABLE:
+                mappingStatus = ShortUrlMappingStatus.NO_SHORT_URL_IS_AVAILABLE;
+                break;
+            case ShortUrlReservationStatus.NOT_ON_LOCAL_MACHINE:
+                mappingStatus = ShortUrlMappingStatus.NOT_ON_LOCAL_MACHINE;
+                break;
+            default:
+                mappingStatus = ShortUrlMappingStatus.UNKNOWN_SHORT_URL_MAPPING_ERROR;
+                break;
+        }
+        return mappingStatus;
+    }
 }

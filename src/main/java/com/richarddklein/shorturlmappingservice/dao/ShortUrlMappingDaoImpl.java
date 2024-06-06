@@ -77,7 +77,6 @@ import com.richarddklein.shorturlmappingservice.response.ShortUrlMappingStatus;
 @Repository
 public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
     private static final String LONG_URL_INDEX_NAME = "longUrl-index";
-    private static final int MAX_BATCH_SIZE = 25;
 
     private final ParameterStoreReader parameterStoreReader;
     private final DynamoDbClient dynamoDbClient;
