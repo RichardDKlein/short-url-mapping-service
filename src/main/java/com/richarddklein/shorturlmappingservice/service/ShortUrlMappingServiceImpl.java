@@ -100,6 +100,7 @@ public class ShortUrlMappingServiceImpl implements ShortUrlMappingService {
                 shortUrlMappingDao.getSpecificShortUrlMappings(shortUrlMapping);
 
         if ((ShortUrlMappingStatus)doesMappingExist[0] != ShortUrlMappingStatus.SUCCESS) {
+            doesMappingExist[1] = null;
             return doesMappingExist;
         }
 
@@ -154,7 +155,7 @@ public class ShortUrlMappingServiceImpl implements ShortUrlMappingService {
                 mappingStatus = ShortUrlMappingStatus.NOT_ON_LOCAL_MACHINE;
                 break;
             default:
-                mappingStatus = ShortUrlMappingStatus.UNKNOWN_SHORT_URL_MAPPING_ERROR;
+                mappingStatus = ShortUrlMappingStatus.UNKNOWN_SHORT_URL_RESERVATION_ERROR;
                 break;
         }
         return mappingStatus;
