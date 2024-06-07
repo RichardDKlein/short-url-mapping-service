@@ -7,4 +7,4 @@
  * This package contains the implementation of a web client for the
  * Short URL Reservation service.
  */
-package com.richarddklein.shorturlmappingservice.client.shorturlreservationservice;
+package com.richarddklein.shorturlmappingservice.service.shorturlreservationclient;

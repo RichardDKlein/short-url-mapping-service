@@ -8,4 +8,4 @@
  * implement the JSON responses returned to the web client by the
  * Short URL Reservation service.
  */
-package com.richarddklein.shorturlmappingservice.client.shorturlreservationservice.dto;
+package com.richarddklein.shorturlmappingservice.service.shorturlreservationclient.dto;

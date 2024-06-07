@@ -7,9 +7,9 @@ package com.richarddklein.shorturlmappingservice.service;
 
 import java.util.List;
 
-import com.richarddklein.shorturlmappingservice.client.shorturlreservationservice.ShortUrlReservationClient;
-import com.richarddklein.shorturlmappingservice.client.shorturlreservationservice.dto.ShortUrlReservationResult;
-import com.richarddklein.shorturlmappingservice.client.shorturlreservationservice.dto.ShortUrlReservationStatus;
+import com.richarddklein.shorturlmappingservice.service.shorturlreservationclient.ShortUrlReservationClient;
+import com.richarddklein.shorturlmappingservice.service.shorturlreservationclient.dto.ShortUrlReservationResult;
+import com.richarddklein.shorturlmappingservice.service.shorturlreservationclient.dto.ShortUrlReservationStatus;
 import org.springframework.stereotype.Service;
 
 import com.richarddklein.shorturlmappingservice.dao.ShortUrlMappingDao;

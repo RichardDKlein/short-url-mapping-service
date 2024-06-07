@@ -3,11 +3,11 @@
  * (Copyright 2024 by Richard Klein)
  */
 
-package com.richarddklein.shorturlmappingservice.client.shorturlreservationservice;
+package com.richarddklein.shorturlmappingservice.service.shorturlreservationclient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.richarddklein.shorturlcommonlibrary.aws.ParameterStoreReader;
-import com.richarddklein.shorturlmappingservice.client.shorturlreservationservice.dto.*;
+import com.richarddklein.shorturlmappingservice.service.shorturlreservationclient.dto.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 

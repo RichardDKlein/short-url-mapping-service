@@ -3,10 +3,10 @@
  * (Copyright 2024 by Richard Klein)
  */
 
-package com.richarddklein.shorturlmappingservice.client.shorturlreservationservice;
+package com.richarddklein.shorturlmappingservice.service.shorturlreservationclient;
 
-import com.richarddklein.shorturlmappingservice.client.shorturlreservationservice.dto.ShortUrlReservationResult;
-import com.richarddklein.shorturlmappingservice.client.shorturlreservationservice.dto.ShortUrlReservationStatus;
+import com.richarddklein.shorturlmappingservice.service.shorturlreservationclient.dto.ShortUrlReservationResult;
+import com.richarddklein.shorturlmappingservice.service.shorturlreservationclient.dto.ShortUrlReservationStatus;
 
 /**
  * The Short URL Reservation WebClient interface.
