@@ -76,7 +76,7 @@
         </dependency>
         <dependency>
             <groupId>com.richarddklein.shorturl</groupId>
-            <artifactId>short-url-webclient-library</artifactId>
+            <artifactId>short-url-common-library</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
 

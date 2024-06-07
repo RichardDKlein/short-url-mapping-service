@@ -5,8 +5,8 @@
 
 package com.richarddklein.shorturlmappingservice.config;
 
-import com.richarddklein.shorturlwebclientlibrary.shorturlreservationservice.client.ShortUrlReservationClient;
-import com.richarddklein.shorturlwebclientlibrary.shorturlreservationservice.client.ShortUrlReservationClientImpl;
+import com.richarddklein.shorturlmappingservice.client.shorturlreservationservice.ShortUrlReservationClient;
+import com.richarddklein.shorturlmappingservice.dao.ShortUrlMappingDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,19 +23,16 @@ import com.richarddklein.shorturlmappingservice.service.ShortUrlMappingServiceIm
 @Configuration
 public class ServiceConfig {
     @Autowired
-    DaoConfig daoConfig;
+    ShortUrlMappingDao shortUrlMappingDao;
+
+    @Autowired
+    ShortUrlReservationClient shortUrlReservationClient;
 
     @Bean
     public ShortUrlMappingService
     shortUrlMappingService() {
         return new ShortUrlMappingServiceImpl(
-                daoConfig.shortUrlMappingDao(),
-                shortUrlReservationClient());
-    }
-
-    @Bean
-    public ShortUrlReservationClient
-    shortUrlReservationClient() {
-        return new ShortUrlReservationClientImpl();
+                shortUrlMappingDao,
+                shortUrlReservationClient);
     }
 }
