@@ -7,6 +7,7 @@ package com.richarddklein.shorturlmappingservice.dao;
 
 import java.util.*;
 
+import com.richarddklein.shorturlcommonlibrary.aws.ParameterStoreReader;
 import org.springframework.stereotype.Repository;
 
 import software.amazon.awssdk.core.pagination.sync.SdkIterable;
@@ -331,8 +332,8 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
     /**
      * Delete matching short URL.
      *
-     * Delete the Short URL Mapping item in the repository whose `shortUrl`
-     * property matches the given one.
+     * <p>Delete the Short URL Mapping item in the repository whose `shortUrl`
+     * property matches the given one.</p>
      *
      * @param shortUrl The short URL to be matched.
      * @return The Short URL Mapping item that was deleted (or `null` if
@@ -355,8 +356,8 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
     /**
      * Update a Short URL Mapping item.
      *
-     * In the Short URL Mapping table in DynamoDB, update a specified
-     * Short URL Mapping item.
+     * <p>In the Short URL Mapping table in DynamoDB, update a specified
+     * Short URL Mapping item.</p>
      *
      * @param shortUrlMapping The Short URL Mapping item that is to be
      *                        used to update DynamoDB.

@@ -7,7 +7,6 @@ package com.richarddklein.shorturlmappingservice.client.shorturlreservationservi
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.richarddklein.shorturlcommonlibrary.aws.ParameterStoreReader;
-import com.richarddklein.shorturlcommonlibrary.aws.ParameterStoreReaderImpl;
 import com.richarddklein.shorturlmappingservice.client.shorturlreservationservice.dto.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -16,12 +15,15 @@ import reactor.core.publisher.Mono;
  * The production implementation of the Short URL Reservation Client interface.
  */
 public class ShortUrlReservationClientImpl implements ShortUrlReservationClient {
-    private final ParameterStoreReader parameterStoreReader =
-            new ParameterStoreReaderImpl();
+    private final ParameterStoreReader parameterStoreReader;
 
     // ------------------------------------------------------------------------
     // PUBLIC METHODS
     // ------------------------------------------------------------------------
+
+    public ShortUrlReservationClientImpl(ParameterStoreReader parameterStoreReader) {
+        this.parameterStoreReader = parameterStoreReader;
+    }
 
     @Override
     public ShortUrlReservationResult reserveAnyShortUrl(boolean isRunningLocally) {

@@ -5,6 +5,8 @@
 
 package com.richarddklein.shorturlmappingservice.config;
 
+import com.richarddklein.shorturlcommonlibrary.aws.ParameterStoreReader;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,10 +15,7 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.awssdk.services.ssm.SsmClient;
 
-import com.richarddklein.shorturlmappingservice.dao.ParameterStoreReader;
-import com.richarddklein.shorturlmappingservice.dao.ParameterStoreReaderImpl;
 import com.richarddklein.shorturlmappingservice.dao.ShortUrlMappingDao;
 import com.richarddklein.shorturlmappingservice.dao.ShortUrlMappingDaoImpl;
 import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
@@ -29,11 +28,14 @@ import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
  */
 @Configuration
 public class DaoConfig {
+    @Autowired
+    ParameterStoreReader parameterStoreReader;
+
     @Bean
     public ShortUrlMappingDao
     shortUrlMappingDao() {
         return new ShortUrlMappingDaoImpl(
-                parameterStoreReader(),
+                parameterStoreReader,
                 dynamoDbClient(),
                 dynamoDbEnhancedClient(),
                 shortUrlMappingTable()
@@ -61,19 +63,7 @@ public class DaoConfig {
     public DynamoDbTable<ShortUrlMapping>
     shortUrlMappingTable() {
         return dynamoDbEnhancedClient().table(
-                parameterStoreReader().getShortUrlMappingTableName(),
+                parameterStoreReader.getShortUrlMappingTableName(),
                 TableSchema.fromBean(ShortUrlMapping.class));
-    }
-
-    @Bean
-    public SsmClient
-    ssmClient() {
-        return SsmClient.builder().build();
-    }
-
-    @Bean
-    public ParameterStoreReader
-    parameterStoreReader() {
-        return new ParameterStoreReaderImpl(ssmClient());
     }
 }

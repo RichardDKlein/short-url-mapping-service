@@ -5,8 +5,10 @@
 
 package com.richarddklein.shorturlmappingservice.config;
 
+import com.richarddklein.shorturlcommonlibrary.aws.ParameterStoreReader;
 import com.richarddklein.shorturlmappingservice.client.shorturlreservationservice.ShortUrlReservationClient;
 import com.richarddklein.shorturlmappingservice.client.shorturlreservationservice.ShortUrlReservationClientImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,9 +20,13 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class ClientConfig {
+    @Autowired
+    ParameterStoreReader parameterStoreReader;
+
     @Bean
     public ShortUrlReservationClient
     shortUrlReservationClient() {
-        return new ShortUrlReservationClientImpl();
+        return new ShortUrlReservationClientImpl(
+                parameterStoreReader);
     }
 }
