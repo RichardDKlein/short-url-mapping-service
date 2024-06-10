@@ -4,7 +4,8 @@
  */
 
 /**
- * This package contains files that implement the JSON responses
- * returned to the HTTP client by the Short URL Mapping service.
+ * This package contains DTO (Data Transfer Object) classes that
+ * implement the JSON responses returned to the HTTP client by
+ * the Short URL Mapping service.
  */
 package com.richarddklein.shorturlmappingservice.controller.dto;
