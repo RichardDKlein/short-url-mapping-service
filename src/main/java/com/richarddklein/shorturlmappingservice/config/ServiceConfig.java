@@ -13,8 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.richarddklein.shorturlmappingservice.service.ShortUrlMappingService;
-import com.richarddklein.shorturlmappingservice.service.ShortUrlMappingServiceImpl;
+import com.richarddklein.shorturlmappingservice.service.shorturlmappingservice.ShortUrlMappingService;
+import com.richarddklein.shorturlmappingservice.service.shorturlmappingservice.ShortUrlMappingServiceImpl;
 
 /**
  * The Service @Configuration class.

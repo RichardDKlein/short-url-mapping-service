@@ -3,7 +3,9 @@
  * (Copyright 2024 by Richard Klein)
  */
 
-package com.richarddklein.shorturlmappingservice.response;
+package com.richarddklein.shorturlmappingservice.controller.dto;
+
+import com.richarddklein.shorturlmappingservice.service.shorturlmappingservice.ShortUrlMappingStatus;
 
 /**
  * Class defining an HTTP Response containing a status

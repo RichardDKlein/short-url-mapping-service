@@ -7,7 +7,7 @@ package com.richarddklein.shorturlmappingservice.service.shorturlreservationclie
 
 /**
  * Class defining the Short URL Reservation object sent by the Short URL Reservation
- * service in response to a request to reserve a short URL.
+ * service in dto to a request to reserve a short URL.
  */
 public class ShortUrlReservation {
     private String shortUrl;

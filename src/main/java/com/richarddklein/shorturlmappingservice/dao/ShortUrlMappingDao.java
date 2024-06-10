@@ -8,7 +8,7 @@ package com.richarddklein.shorturlmappingservice.dao;
 import java.util.List;
 
 import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
-import com.richarddklein.shorturlmappingservice.response.ShortUrlMappingStatus;
+import com.richarddklein.shorturlmappingservice.service.shorturlmappingservice.ShortUrlMappingStatus;
 
 /**
  * The Short URL Mapping DAO (Data Access Object) interface.

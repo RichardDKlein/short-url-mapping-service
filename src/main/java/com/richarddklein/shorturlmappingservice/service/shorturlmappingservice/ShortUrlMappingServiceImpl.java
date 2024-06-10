@@ -3,7 +3,7 @@
  * (Copyright 2024 by Richard Klein)
  */
 
-package com.richarddklein.shorturlmappingservice.service;
+package com.richarddklein.shorturlmappingservice.service.shorturlmappingservice;
 
 import java.util.List;
 
@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import com.richarddklein.shorturlmappingservice.dao.ShortUrlMappingDao;
 import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
-import com.richarddklein.shorturlmappingservice.response.ShortUrlMappingStatus;
 
 /**
  * The production implementation of the Short URL Mapping Service interface.

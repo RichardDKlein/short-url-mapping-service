@@ -3,12 +3,11 @@
  * (Copyright 2024 by Richard Klein)
  */
 
-package com.richarddklein.shorturlmappingservice.service;
+package com.richarddklein.shorturlmappingservice.service.shorturlmappingservice;
 
 import java.util.List;
 
 import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
-import com.richarddklein.shorturlmappingservice.response.ShortUrlMappingStatus;
 
 /**
  * The Short URL Mapping Service interface.

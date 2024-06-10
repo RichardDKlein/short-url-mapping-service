@@ -5,6 +5,7 @@
 
 package com.richarddklein.shorturlmappingservice.exception;
 
+import com.richarddklein.shorturlmappingservice.controller.dto.GlobalErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -12,8 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
-
-import com.richarddklein.shorturlmappingservice.response.GlobalErrorResponse;
 
 /**
  * The global exception handler for the Short URL Mapping Service.

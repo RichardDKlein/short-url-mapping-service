@@ -18,7 +18,7 @@ import software.amazon.awssdk.services.dynamodb.model.*;
 import software.amazon.awssdk.services.dynamodb.waiters.DynamoDbWaiter;
 
 import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
-import com.richarddklein.shorturlmappingservice.response.ShortUrlMappingStatus;
+import com.richarddklein.shorturlmappingservice.service.shorturlmappingservice.ShortUrlMappingStatus;
 
 /**
  * The production implementation of the Short URL Mapping DAO interface.

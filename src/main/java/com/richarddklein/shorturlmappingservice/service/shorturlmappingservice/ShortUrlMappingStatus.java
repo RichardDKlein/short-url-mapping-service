@@ -3,13 +3,13 @@
  * (Copyright 2024 by Richard Klein)
  */
 
-package com.richarddklein.shorturlmappingservice.response;
+package com.richarddklein.shorturlmappingservice.service.shorturlmappingservice;
 
 /**
  * The Short URL Reservation Status.
  *
  * An enumerated type describing the various possible statuses
- * that can be returned in response to a client request.
+ * that can be returned in dto to a client request.
  */
 public enum ShortUrlMappingStatus {
     SUCCESS,

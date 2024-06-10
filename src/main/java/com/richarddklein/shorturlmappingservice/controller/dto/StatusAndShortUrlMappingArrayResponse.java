@@ -3,7 +3,7 @@
  * (Copyright 2024 by Richard Klein)
  */
 
-package com.richarddklein.shorturlmappingservice.response;
+package com.richarddklein.shorturlmappingservice.controller.dto;
 
 import java.util.List;
 
