@@ -5,7 +5,7 @@
 
 package com.richarddklein.shorturlmappingservice.exception;
 
-import com.richarddklein.shorturlmappingservice.controller.dto.GlobalErrorResponse;
+import com.richarddklein.shorturlmappingservice.controller.response.GlobalErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;

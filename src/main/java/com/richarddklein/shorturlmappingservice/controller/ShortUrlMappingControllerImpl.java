@@ -9,9 +9,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import com.richarddklein.shorturlmappingservice.controller.dto.StatusAndShortUrlMappingArrayResponse;
-import com.richarddklein.shorturlmappingservice.controller.dto.StatusAndShortUrlMappingResponse;
-import com.richarddklein.shorturlmappingservice.controller.dto.StatusResponse;
+import com.richarddklein.shorturlmappingservice.controller.response.StatusAndShortUrlMappingArrayResponse;
+import com.richarddklein.shorturlmappingservice.controller.response.StatusAndShortUrlMappingResponse;
+import com.richarddklein.shorturlmappingservice.controller.response.StatusResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;

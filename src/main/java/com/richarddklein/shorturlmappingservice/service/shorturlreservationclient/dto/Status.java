@@ -7,7 +7,7 @@ package com.richarddklein.shorturlmappingservice.service.shorturlreservationclie
 
 /**
  * Class defining the status object returned by the Short URL Reservation service
- * in dto to a request to reserve a short URL.
+ * in response to a request to reserve a short URL.
  */
 public class Status {
     private String status;

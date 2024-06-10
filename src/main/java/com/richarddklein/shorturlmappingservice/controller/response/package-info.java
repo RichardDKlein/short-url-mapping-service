@@ -8,4 +8,4 @@
  * implement the JSON responses returned to the HTTP client by
  * the Short URL Mapping service.
  */
-package com.richarddklein.shorturlmappingservice.controller.dto;
+package com.richarddklein.shorturlmappingservice.controller.response;

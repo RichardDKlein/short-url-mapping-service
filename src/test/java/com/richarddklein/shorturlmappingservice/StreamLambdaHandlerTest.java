@@ -41,17 +41,17 @@ public class StreamLambdaHandlerTest {
 //
 //        handle(requestStream, responseStream);
 //
-//        AwsProxyResponse dto = readResponse(responseStream);
-//        assertNotNull(dto);
-//        assertEquals(Response.Status.OK.getStatusCode(), dto.getStatusCode());
+//        AwsProxyResponse response = readResponse(responseStream);
+//        assertNotNull(response);
+//        assertEquals(Response.Status.OK.getStatusCode(), response.getStatusCode());
 //
-//        assertFalse(dto.isBase64Encoded());
+//        assertFalse(response.isBase64Encoded());
 //
-//        assertTrue(dto.getBody().contains("status"));
-//        assertTrue(dto.getBody().contains("shortUrlReservation"));
+//        assertTrue(response.getBody().contains("status"));
+//        assertTrue(response.getBody().contains("shortUrlReservation"));
 //
-//        assertTrue(dto.getMultiValueHeaders().containsKey(HttpHeaders.CONTENT_TYPE));
-//        assertTrue(dto.getMultiValueHeaders().getFirst(HttpHeaders.CONTENT_TYPE).startsWith(MediaType.APPLICATION_JSON));
+//        assertTrue(response.getMultiValueHeaders().containsKey(HttpHeaders.CONTENT_TYPE));
+//        assertTrue(response.getMultiValueHeaders().getFirst(HttpHeaders.CONTENT_TYPE).startsWith(MediaType.APPLICATION_JSON));
 //    }
 
     @Test
@@ -84,7 +84,7 @@ public class StreamLambdaHandlerTest {
                     .readValue(responseStream.toByteArray(), AwsProxyResponse.class);
         } catch (IOException e) {
             e.printStackTrace();
-            fail("Error while parsing dto: " + e.getMessage());
+            fail("Error while parsing response: " + e.getMessage());
         }
         return null;
     }

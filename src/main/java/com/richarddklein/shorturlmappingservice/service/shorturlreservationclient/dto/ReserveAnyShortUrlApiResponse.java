@@ -7,7 +7,7 @@ package com.richarddklein.shorturlmappingservice.service.shorturlreservationclie
 
 /**
  * Class defining the HTTP Response sent by the Short URL Reservation service
- * in dto to a request to reserve any available short URL.
+ * in response to a request to reserve any available short URL.
  */
 public class ReserveAnyShortUrlApiResponse {
     private Status status;

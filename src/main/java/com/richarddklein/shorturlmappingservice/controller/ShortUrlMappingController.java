@@ -5,9 +5,9 @@
 
 package com.richarddklein.shorturlmappingservice.controller;
 
-import com.richarddklein.shorturlmappingservice.controller.dto.StatusAndShortUrlMappingArrayResponse;
-import com.richarddklein.shorturlmappingservice.controller.dto.StatusAndShortUrlMappingResponse;
-import com.richarddklein.shorturlmappingservice.controller.dto.StatusResponse;
+import com.richarddklein.shorturlmappingservice.controller.response.StatusAndShortUrlMappingArrayResponse;
+import com.richarddklein.shorturlmappingservice.controller.response.StatusAndShortUrlMappingResponse;
+import com.richarddklein.shorturlmappingservice.controller.response.StatusResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.*;
@@ -24,12 +24,12 @@ public interface ShortUrlMappingController {
     /**
      * Initialize the Short URL Mapping repository.
      *
-     * <p>This is a synchronous operation. It will return a dto
+     * <p>This is a synchronous operation. It will return a response
      * to the client only when the database initialization has
      * completed successfully, or has failed.</p>
      *
      * <p>Because database initialization is a long-running operation
-     * that exceeds the AWS API Gateway maximum dto timeout of
+     * that exceeds the AWS API Gateway maximum response timeout of
      * 30 seconds, this REST endpoint is available only when the Short
      * URL Mapping Service is running on localhost, not on AWS.</p>
      *

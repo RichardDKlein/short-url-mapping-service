@@ -3,7 +3,7 @@
  * (Copyright 2024 by Richard Klein)
  */
 
-package com.richarddklein.shorturlmappingservice.controller.dto;
+package com.richarddklein.shorturlmappingservice.controller.response;
 
 /**
  * The Global Error Response class.

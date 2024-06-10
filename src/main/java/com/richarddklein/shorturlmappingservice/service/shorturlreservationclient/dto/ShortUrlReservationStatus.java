@@ -10,7 +10,7 @@ package com.richarddklein.shorturlmappingservice.service.shorturlreservationclie
  *
  * An enumerated type describing the various possible statuses
  * that can be returned by the Short URL Reservation service
- * in dto to a web client request.
+ * in response to a web client request.
  */
 public enum ShortUrlReservationStatus {
     // IMPORTANT: Keep this in sync with the ShortUrlReservationStatus
