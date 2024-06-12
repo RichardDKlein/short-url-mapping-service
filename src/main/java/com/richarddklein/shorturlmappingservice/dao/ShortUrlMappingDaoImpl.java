@@ -367,7 +367,7 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
      */
     private ShortUrlMapping updateShortUrlMapping(ShortUrlMapping shortUrlMapping) {
         try {
-            return shortUrlMappingTable.updateItem(req -> req.item(shortUrlMapping));
+            return shortUrlMappingTable.updateItem(shortUrlMapping);
         } catch (ConditionalCheckFailedException e) {
             // Version check failed. Someone updated the ShortUrlMapping
             // item in the database after we read the item, so the item we
