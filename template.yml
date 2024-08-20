@@ -10,6 +10,7 @@ Globals:
     EndpointConfiguration: REGIONAL
 
 Resources:
+  # Define the Lambda function
   ShortUrlMappingService:
     Type: AWS::Serverless::Function
     Properties:
@@ -18,21 +19,7 @@ Resources:
       CodeUri: .
       MemorySize: 512
       Timeout: 90
-      Policies:
-        # Write permission for CloudWatch logs
-        - AWSLambdaBasicExecutionRole
-        # Read/write permission for DynamoDB
-        - AmazonDynamoDBFullAccess
-        # Read permissions for SSM Parameter Store
-        - SSMParameterWithSlashPrefixReadPolicy:
-            ParameterName:
-              /shortUrl/mappings/tableName
-        - SSMParameterWithSlashPrefixReadPolicy:
-            ParameterName:
-              /shortUrl/reservations/baseUrlAws
-        - SSMParameterWithSlashPrefixReadPolicy:
-            ParameterName:
-              /shortUrl/reservations/baseUrlLocal
+      Role: !GetAtt LambdaExecutionRole.Arn
       SnapStart:
         ApplyOn: "PublishedVersions"
 
@@ -42,9 +29,9 @@ Resources:
       # where the URL specifies the custom domain that redirects to the API
       # Gateway. Thus, an endpoint URL can have one of three possible values:
       #
-      # API Gateway:   <aws-api-ID>.execute-api.us-east-2.amazonaws.com/Prod/shorturl/mappings/<endpoint>
-      # localhost:     localhost:3000/shorturl/mappings/<endpoint>
-      # Custom Domain: api.richarddklein.com/shorturl/mappings/<endpoint>
+      # API Gateway:   <aws-api-ID>.execute-api.us-east-2.amazonaws.com/Prod/short-url/mappings/<endpoint>
+      # localhost:     localhost:5000/short-url/mappings/<endpoint>
+      # Custom Domain: api.richarddklein.com/short-url/mappings/<endpoint>
       #
       # When the service is running on your local machine, via the command
       # `sam local start-api`, use the above `localhost` URL.
@@ -54,85 +41,61 @@ Resources:
       # the `Custom Domain` hostname, as it is simpler to remember and to type.)
       #
       # For a description of the functionality provided by the REST endpoints,
-      # see the comments in the `ShortUrlMappingController` interface.
+      # see the comments in the `ShortUrlMappingControllerImpl` interface.
       Events:
-        InitializeShortUrlMappingTableViaApiGatewayOrLocalHost:
+        InitializeShortUrlMappingRepositoryViaApiGatewayOrLocalHost:
           Type: Api
           Properties:
-            Path: /shorturl/mappings/dbinit
+            Path: /short-url/mappings/initialize-repository
             Method: POST
-        InitializeShortUrlMappingTableViaCustomDomain:
+        InitializeShortUrlMappingRepositoryViaCustomDomain:
           Type: Api
           Properties:
-            Path: /dbinit
+            Path: /initialize-repository
             Method: POST
-        CreateShortUrlMappingViaApiGatewayOrLocalHost:
-          Type: Api
-          Properties:
-            Path: /shorturl/mappings
-            Method: POST
-        CreateShortUrlMappingViaCustomDomain:
-          Type: Api
-          Properties:
-            Path: /
-            Method: POST
-        GetSpecificShortUrlMappingViaApiGatewayOrLocalHost:
-          Type: Api
-          Properties:
-            Path: /shorturl/mappings/specific
-            Method: GET
-        GetSpecificShortUrlMappingViaCustomDomain:
-          Type: Api
-          Properties:
-            Path: /specific
-            Method: GET
-        GetAllShortUrlMappingsViaApiGatewayOrLocalHost:
-          Type: Api
-          Properties:
-            Path: /shorturl/mappings/all
-            Method: GET
-        GetAllShortUrlMappingsViaCustomDomain:
-          Type: Api
-          Properties:
-            Path: /all
-            Method: GET
-        RedirectShortUrlToLongUrlViaApiGatewayOrLocalHost:
-          Type: Api
-          Properties:
-            Path: /shorturl/mappings/{proxy+}
-            Method: GET
-        RedirectShortUrlToLongUrlViaCustomDomain:
-          Type: Api
-          Properties:
-            Path: /{proxy+}
-            Method: GET
-        UpdateLongUrlViaApiGatewayOrLocalHost:
-          Type: Api
-          Properties:
-            Path: /shorturl/mappings/{proxy+}
-            Method: PATCH
-        UpdateLongUrlViaCustomDomain:
-          Type: Api
-          Properties:
-            Path: /{proxy+}
-            Method: PATCH
-        DeleteShortUrlMappingViaApiGatewayOrLocalHost:
-          Type: Api
-          Properties:
-            Path: /shorturl/mappings/{proxy+}
-            Method: DELETE
-        DeleteShortUrlMappingViaCustomDomain:
-          Type: Api
-          Properties:
-            Path: /{proxy+}
-            Method: DELETE
-        DeleteAllShortUrlMappingsViaApiGatewayOrLocalHost:
-          Type: Api
-          Properties:
-            Path: /shorturl/mappings/all
-            Method: DELETE
-        DeleteAllShortUrlMappingsViaCustomDomain:
-          Type: Api
-          Properties:
-            Path: /all
-            Method: DELETE
+
+  # Define the IAM Role for the Lambda function
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaExecutionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              # Write permission for CloudWatch logs
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+              # Read/write permission for DynamoDB
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:GetItem
+                  - dynamodb:Scan
+                  - dynamodb:Query
+                Resource: "*"
+              # Custom read/write policy for SSM parameter `adminPassword`
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                  - ssm:PutParameter
+                Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/shortUrl/users/adminPassword
+              # Read policy for other SSM parameters
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                Resource:
+                  - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/shortUrl/mappings/tableName

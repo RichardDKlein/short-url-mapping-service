@@ -3,27 +3,19 @@
  * (Copyright 2024 by Richard Klein)
  */
 
-package com.richarddklein.shorturlmappingservice.controller.response;
+package com.richarddklein.shorturlmappingservice.dto;
 
-import com.richarddklein.shorturlmappingservice.service.shorturlmappingservice.ShortUrlMappingStatus;
-
-/**
- * Class defining an HTTP Response containing a status
- * code/message only.
- */
-public class StatusResponse {
+public class Status {
     private ShortUrlMappingStatus status;
     private String message;
 
-    /**
-     * General constructor.
-     *
-     * @param status The status code to be embedded in the HTTP Response.
-     * @param message The status message to be embedded in the HTTP Response.
-     */
-    public StatusResponse(ShortUrlMappingStatus status, String message) {
+    public Status(ShortUrlMappingStatus status, String message) {
         this.status = status;
         this.message = message;
+    }
+
+    public Status(ShortUrlMappingStatus status) {
+        this.status = status;
     }
 
     public ShortUrlMappingStatus getStatus() {
@@ -44,7 +36,7 @@ public class StatusResponse {
 
     @Override
     public String toString() {
-        return "StatusResponse{" +
+        return "Status{" +
                 "status=" + status +
                 ", message='" + message + '\'' +
                 '}';

@@ -5,20 +5,14 @@
 
 package com.richarddklein.shorturlmappingservice.dao;
 
-import java.util.*;
-
-import com.richarddklein.shorturlcommonlibrary.aws.ParameterStoreReader;
-import org.springframework.stereotype.Repository;
-
-import software.amazon.awssdk.core.pagination.sync.SdkIterable;
-import software.amazon.awssdk.enhanced.dynamodb.*;
-import software.amazon.awssdk.enhanced.dynamodb.model.*;
-import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.awssdk.services.dynamodb.model.*;
-import software.amazon.awssdk.services.dynamodb.waiters.DynamoDbWaiter;
-
+import com.richarddklein.shorturlcommonlibrary.aws.ParameterStoreAccessor;
 import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
-import com.richarddklein.shorturlmappingservice.service.shorturlmappingservice.ShortUrlMappingStatus;
+import org.springframework.stereotype.Repository;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbAsyncTable;
+import software.amazon.awssdk.enhanced.dynamodb.model.CreateTableEnhancedRequest;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.ResourceNotFoundException;
+import software.amazon.awssdk.services.dynamodb.waiters.DynamoDbWaiter;
 
 /**
  * The production implementation of the Short URL Mapping DAO interface.
@@ -77,45 +71,28 @@ import com.richarddklein.shorturlmappingservice.service.shorturlmappingservice.S
  */
 @Repository
 public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
-    private static final String LONG_URL_INDEX_NAME = "longUrl-index";
-
-    private final ParameterStoreReader parameterStoreReader;
+    private final ParameterStoreAccessor parameterStoreAccessor;
     private final DynamoDbClient dynamoDbClient;
-    private final DynamoDbEnhancedClient dynamoDbEnhancedClient;
-    private final DynamoDbTable<ShortUrlMapping> shortUrlMappingTable;
+    private final DynamoDbAsyncTable<ShortUrlMapping> shortUrlMappingTable;
 
     // ------------------------------------------------------------------------
     // PUBLIC METHODS
     // ------------------------------------------------------------------------
 
-    /**
-     * General constructor.
-     *
-     * @param parameterStoreReader Dependency injection of a class instance that
-     *                             is to play the role of reading parameters from
-     *                             the Parameter Store component of the AWS Simple
-     *                             System Manager (SSM).
-     * @param dynamoDbClient Dependency injection of a class instance that is to
-     *                       play the role of a DynamoDB Client.
-     * @param dynamoDbEnhancedClient Dependency injection of a class instance that
-     *                               is to play the role of a DynamoDB Enhanced
-     *                               Client.
-     * @param shortUrlMappingTable Dependency injection of a class instance that
-     *                             is to model the Short URL Mapping table in
-     *                             DynamoDB.
-     */
     public ShortUrlMappingDaoImpl(
-            ParameterStoreReader parameterStoreReader,
+            ParameterStoreAccessor parameterStoreAccessor,
             DynamoDbClient dynamoDbClient,
-            DynamoDbEnhancedClient dynamoDbEnhancedClient,
-            DynamoDbTable<ShortUrlMapping> shortUrlMappingTable) {
+            DynamoDbAsyncTable<ShortUrlMapping> shortUrlMappingTable) {
 
-        this.parameterStoreReader = parameterStoreReader;
+        this.parameterStoreAccessor = parameterStoreAccessor;
         this.dynamoDbClient = dynamoDbClient;
-        this.dynamoDbEnhancedClient = dynamoDbEnhancedClient;
         this.shortUrlMappingTable = shortUrlMappingTable;
     }
 
+    // Initialization of the Short URL Mapping repository is performed rarely,
+    // and then only by the Admin from a local machine. Therefore, we do not
+    // need to use reactive (asynchronous) programming techniques here. Simple
+    // synchronous logic will work just fine.
     @Override
     public void initializeShortUrlMappingRepository() {
         if (doesTableExist()) {
@@ -124,128 +101,10 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
         createShortUrlMappingTable();
     }
 
-    @Override
-    public ShortUrlMappingStatus createShortUrlMapping(ShortUrlMapping shortUrlMapping) {
-        try {
-            shortUrlMappingTable.putItem(req -> req
-                    .item(shortUrlMapping)
-                    .conditionExpression(Expression.builder()
-                            .expression("attribute_not_exists(shortUrl)")
-                            .build())
-                    .returnConsumedCapacity(ReturnConsumedCapacity.TOTAL));
-            return ShortUrlMappingStatus.SUCCESS;
-        } catch (ConditionalCheckFailedException e) {
-            // This should never happen. If the request specified a short URL that is
-            // already taken, that fact should have already been discovered in the
-            // Service layer when it asked the Short URL Reservation Service to reserve
-            // that short URL.
-            return ShortUrlMappingStatus.SHORT_URL_ALREADY_TAKEN;
-        }
-    }
-
-    @Override
-    public Object[] getSpecificShortUrlMappings(ShortUrlMapping shortUrlMapping) {
-        Object[] result = new Object[2];
-
-        String shortUrl = shortUrlMapping.getShortUrl();
-        String longUrl = shortUrlMapping.getLongUrl();
-
-        boolean isShortUrlSpecified = shortUrl != null && !shortUrl.isEmpty();
-        boolean isLongUrlSpecified = longUrl != null && !longUrl.isEmpty();
-
-        boolean isOnlyShortUrlSpecified = isShortUrlSpecified && !isLongUrlSpecified;
-        boolean isOnlyLongUrlSpecified = isLongUrlSpecified && !isShortUrlSpecified;
-        boolean areBothShortAndLongUrlsSpecified = isShortUrlSpecified && isLongUrlSpecified;
-
-        List<ShortUrlMapping> matchingMappings = null;
-        ShortUrlMappingStatus shortUrlMappingStatus = ShortUrlMappingStatus.SUCCESS;
-
-        if (isOnlyShortUrlSpecified) {
-            matchingMappings = findMatchingShortUrls(shortUrl);
-            if (matchingMappings.isEmpty()) {
-                shortUrlMappingStatus = ShortUrlMappingStatus.NO_SUCH_SHORT_URL;
-            }
-        } else if (isOnlyLongUrlSpecified) {
-            matchingMappings = findMatchingLongUrls(longUrl);
-            if (matchingMappings.isEmpty()) {
-                shortUrlMappingStatus = ShortUrlMappingStatus.NO_SUCH_LONG_URL;
-            }
-        } else {
-            if (areBothShortAndLongUrlsSpecified) {
-                matchingMappings = new ArrayList<>();
-                List<ShortUrlMapping> matchingShortUrls = findMatchingShortUrls(shortUrl);
-                List<ShortUrlMapping> matchingLongUrls = findMatchingLongUrls(longUrl);
-                for (ShortUrlMapping item1 : matchingShortUrls) {
-                    for (ShortUrlMapping item2 : matchingLongUrls) {
-                        if (item1.getShortUrl().equals(item2.getShortUrl())
-                                && item1.getLongUrl().equals(item2.getLongUrl())) {
-                            matchingMappings.add(item1);
-                        }
-                    }
-                }
-                ;
-                if (matchingMappings.isEmpty()) {
-                    shortUrlMappingStatus = ShortUrlMappingStatus.NO_SUCH_MAPPING;
-                }
-            }
-        }
-        result[0] = shortUrlMappingStatus;
-        result[1] = matchingMappings;
-
-        return result;
-    }
-
-    @Override
-    public List<ShortUrlMapping> getAllShortUrlMappings() {
-        List<ShortUrlMapping> result = new ArrayList<>();
-        // do `.scan(req -> req.consistentRead(true))` if
-        // the user is admin
-        shortUrlMappingTable.scan().items().forEach(result::add);
-        return result;
-    }
-
-    @Override
-    public ShortUrlMappingStatus updateLongUrl(String shortUrl, String newLongUrl) {
-        if (newLongUrl == null || newLongUrl.isEmpty()) {
-            return ShortUrlMappingStatus.NO_LONG_URL_SPECIFIED;
-        }
-        ShortUrlMapping updatedShortUrlMapping;
-        do {
-            List<ShortUrlMapping> shortUrlMappings = findMatchingShortUrls(shortUrl);
-            if (shortUrlMappings.isEmpty()) {
-                return ShortUrlMappingStatus.NO_SUCH_SHORT_URL;
-            }
-            ShortUrlMapping shortUrlMapping = shortUrlMappings.get(0);
-            shortUrlMapping.setLongUrl(newLongUrl);
-            updatedShortUrlMapping = updateShortUrlMapping(shortUrlMapping);
-        } while (updatedShortUrlMapping == null);
-        return ShortUrlMappingStatus.SUCCESS;
-    }
-
-    @Override
-    public Object[] deleteShortUrlMapping(String shortUrl) {
-        Object[] result = new Object[2];
-
-        ShortUrlMapping deletedMapping = deleteMatchingShortUrl(shortUrl);
-        ShortUrlMappingStatus shortUrlMappingStatus = (deletedMapping == null) ?
-                ShortUrlMappingStatus.NO_SUCH_SHORT_URL : ShortUrlMappingStatus.SUCCESS;
-
-        result[0] = shortUrlMappingStatus;
-        result[1] = deletedMapping;
-
-        return result;
-    }
-
     // ------------------------------------------------------------------------
     // PRIVATE METHODS
     // ------------------------------------------------------------------------
 
-    /**
-     * Determine whether the Short URL Mapping table currently exists in
-     * DynamoDB.
-     *
-     * @return `true` if the table currently exists, or `false` otherwise.
-     */
     private boolean doesTableExist() {
         try {
             shortUrlMappingTable.describeTable();
@@ -255,125 +114,34 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
         return true;
     }
 
-    /**
-     * Delete the Short URL Mapping table from DynamoDB.
-     */
     private void deleteShortUrlMappingTable() {
-        System.out.print("Deleting the Short URL Mapping table ...");
+        System.out.print("====> Deleting the Short URL Mapping table ...");
+
         shortUrlMappingTable.deleteTable();
+
         DynamoDbWaiter waiter = DynamoDbWaiter.builder().client(dynamoDbClient).build();
         waiter.waitUntilTableNotExists(builder -> builder
-                .tableName(parameterStoreReader.getShortUrlMappingTableName())
+                // synchronous logic ok here
+                .tableName(parameterStoreAccessor.getShortUrlMappingTableName().block())
                 .build());
         waiter.close();
+
         System.out.println(" done!");
     }
 
-    /**
-     * Create the Short URL Mapping table in DynamoDB.
-     */
     private void createShortUrlMappingTable() {
-        System.out.print("Creating the Short URL Mapping table ...");
-        CreateTableEnhancedRequest createTableRequest = CreateTableEnhancedRequest.builder()
-                .globalSecondaryIndices(gsiBuilder -> gsiBuilder
-                        .indexName("longUrl-index")
-                        .projection(projectionBuilder -> projectionBuilder
-                                .projectionType(ProjectionType.KEYS_ONLY))
-                ).build();
+        System.out.print("====> Creating the Short URL Mapping table ...");
+
+        CreateTableEnhancedRequest createTableRequest =
+                CreateTableEnhancedRequest.builder().build();
         shortUrlMappingTable.createTable(createTableRequest);
+
         DynamoDbWaiter waiter = DynamoDbWaiter.builder().client(dynamoDbClient).build();
         waiter.waitUntilTableExists(builder -> builder
-                .tableName(parameterStoreReader.getShortUrlMappingTableName()).build());
+                // synchronous logic ok here
+                .tableName(parameterStoreAccessor.getShortUrlMappingTableName().block()).build());
         waiter.close();
+
         System.out.println(" done!");
-    }
-
-    /**
-     * Find matching short URLs.
-     * <p>
-     * Find all Short URL Mapping items (there should be at most one) in the
-     * repository whose `shortUrl` property matches the given one.
-     *
-     * @param shortUrl The short URL to be matched.
-     * @return A list of all matching Short URL Mapping items (there should
-     * be at most one).
-     */
-    private List<ShortUrlMapping> findMatchingShortUrls(String shortUrl) {
-        QueryConditional queryConditional = QueryConditional
-                .keyEqualTo(Key.builder().partitionValue(shortUrl).build());
-        SdkIterable<ShortUrlMapping> results = shortUrlMappingTable.query(
-                req -> req.queryConditional(queryConditional)).items();
-        List<ShortUrlMapping> matchingShortUrls = new ArrayList<>();
-        results.forEach(matchingShortUrls::add);
-        return matchingShortUrls;
-    }
-
-    /**
-     * Find matching long URLs.
-     * <p>
-     * Find all Short URL Mapping items in the repository whose `longUrl`
-     * property matches the given one.
-     *
-     * @param longUrl The long URL to be matched.
-     * @return A list of all matching Short URL Mapping items.
-     */
-    private List<ShortUrlMapping> findMatchingLongUrls(String longUrl) {
-        QueryConditional queryConditional = QueryConditional
-                .keyEqualTo(Key.builder().partitionValue(longUrl).build());
-        DynamoDbIndex<ShortUrlMapping> gsiIndexOnLongUrl =
-                shortUrlMappingTable.index(LONG_URL_INDEX_NAME);
-        SdkIterable<Page<ShortUrlMapping>> results = gsiIndexOnLongUrl.query(
-                req -> req.queryConditional(queryConditional));
-        List<ShortUrlMapping> matchingLongUrls = new ArrayList<>();
-        results.forEach(page -> matchingLongUrls.addAll(page.items()));
-        return matchingLongUrls;
-    }
-
-    /**
-     * Delete matching short URL.
-     *
-     * <p>Delete the Short URL Mapping item in the repository whose `shortUrl`
-     * property matches the given one.</p>
-     *
-     * @param shortUrl The short URL to be matched.
-     * @return The Short URL Mapping item that was deleted (or `null` if
-     * there was no matching Short URL Mapping item).
-     */
-    private ShortUrlMapping deleteMatchingShortUrl(String shortUrl) {
-        QueryConditional queryConditional = QueryConditional
-                .keyEqualTo(Key.builder().partitionValue(shortUrl).build());
-        SdkIterable<ShortUrlMapping> results = shortUrlMappingTable.query(
-                req -> req.queryConditional(queryConditional)).items();
-        ShortUrlMapping deletedItem = results.iterator().hasNext() ?
-                results.iterator().next() : null;
-        if (deletedItem != null) {
-            shortUrlMappingTable.deleteItem(req ->
-                    req.key(shortUrlMappingTable.keyFrom(deletedItem)));
-        }
-        return deletedItem;
-    }
-
-    /**
-     * Update a Short URL Mapping item.
-     *
-     * <p>In the Short URL Mapping table in DynamoDB, update a specified
-     * Short URL Mapping item.</p>
-     *
-     * @param shortUrlMapping The Short URL Mapping item that is to be
-     *                        used to update DynamoDB.
-     * @return The updated Short URL Mapping item, or `null` if the
-     * update failed. (The update can fail if someone else is updating
-     * the same item concurrently.)
-     */
-    private ShortUrlMapping updateShortUrlMapping(ShortUrlMapping shortUrlMapping) {
-        try {
-            return shortUrlMappingTable.updateItem(shortUrlMapping);
-        } catch (ConditionalCheckFailedException e) {
-            // Version check failed. Someone updated the ShortUrlMapping
-            // item in the database after we read the item, so the item we
-            // just tried to update contains stale data.
-            System.out.println(e.getMessage());
-            return null;
-        }
     }
 }
