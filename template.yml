@@ -4,7 +4,7 @@
 #
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Short URL Mapping Service - api.richarddklein.com/shorturl/mappings
+Description: Short URL Mapping Service - api.richarddklein.com/short-url/mappings
 Globals:
   Api:
     EndpointConfiguration: REGIONAL
