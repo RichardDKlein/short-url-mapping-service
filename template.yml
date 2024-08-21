@@ -30,7 +30,7 @@ Resources:
       # Gateway. Thus, an endpoint URL can have one of three possible values:
       #
       # API Gateway:   <aws-api-ID>.execute-api.us-east-2.amazonaws.com/Prod/short-url/mappings/<endpoint>
-      # localhost:     localhost:5000/short-url/mappings/<endpoint>
+      # localhost:     localhost:6000/short-url/mappings/<endpoint>
       # Custom Domain: api.richarddklein.com/short-url/mappings/<endpoint>
       #
       # When the service is running on your local machine, via the command
@@ -99,3 +99,4 @@ Resources:
                   - ssm:GetParameter
                 Resource:
                   - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/shortUrl/mappings/tableName
+                  - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/shortUrl/users/adminUsername

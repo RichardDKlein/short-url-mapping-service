@@ -70,7 +70,7 @@ public class DaoConfig {
     public DynamoDbAsyncTable<ShortUrlMapping>
     shortUrlMappingTable() {
         return dynamoDbEnhancedAsyncClient().table(
-                parameterStoreAccessor.getShortUrlReservationTableName().block(),
+                parameterStoreAccessor.getShortUrlMappingTableName().block(),
                 TableSchema.fromBean(ShortUrlMapping.class));
     }
 }
