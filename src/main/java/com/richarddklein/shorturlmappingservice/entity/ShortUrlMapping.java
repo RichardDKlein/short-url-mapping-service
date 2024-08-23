@@ -24,6 +24,7 @@ public class ShortUrlMapping {
      * `ShortUrlMappingDaoImpl` Javadoc for a detailed
      * description of these attributes.
      */
+    private String username;
     private String shortUrl;
     private String longUrl;
 
@@ -33,23 +34,25 @@ public class ShortUrlMapping {
     /**
      * Default constructor.
      *
-     * This is not used by our code, but Spring requires it.
+     * <p>This is not used by our code, but Spring requires it.</p>
      */
     public ShortUrlMapping() {
     }
 
-    /**
-     * General constructor.
-     *
-     * Construct a Short URL Mapping entity from parameters specifying
-     * the value of the `shortUrl` and `longUrl` attributes.
-     *
-     * @param shortUrl The value of the `shortUrl` attribute.
-     * @param longUrl The value of the `longUrl` attribute.
-     */
-    public ShortUrlMapping(String shortUrl, String longUrl) {
+    public ShortUrlMapping(String username, String shortUrl, String longUrl) {
+        this.username = username;
         this.shortUrl = shortUrl;
         this.longUrl = longUrl;
+    }
+
+    @DynamoDbAttribute("username")
+    @DynamoDbSecondaryPartitionKey(indexNames = "username-index")
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     @DynamoDbPartitionKey
@@ -83,7 +86,8 @@ public class ShortUrlMapping {
     @Override
     public String toString() {
         return "ShortUrlMapping{" +
-                "shortUrl='" + shortUrl + '\'' +
+                "username='" + username + '\'' +
+                ", shortUrl='" + shortUrl + '\'' +
                 ", longUrl='" + longUrl + '\'' +
                 ", version=" + version +
                 '}';

@@ -53,6 +53,16 @@ Resources:
           Properties:
             Path: /initialize-repository
             Method: POST
+        CreateMappingViaApiGatewayOrLocalHost:
+          Type: Api
+          Properties:
+            Path: /short-url/mappings/create-mapping
+            Method: POST
+        CreateMappingViaCustomDomain:
+          Type: Api
+          Properties:
+            Path: /create-mapping
+            Method: POST
 
   # Define the IAM Role for the Lambda function
   LambdaExecutionRole:

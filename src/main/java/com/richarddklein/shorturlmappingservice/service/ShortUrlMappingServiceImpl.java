@@ -10,8 +10,10 @@ import java.util.Objects;
 import com.richarddklein.shorturlcommonlibrary.aws.ParameterStoreAccessor;
 import com.richarddklein.shorturlmappingservice.dao.ShortUrlMappingDao;
 import com.richarddklein.shorturlmappingservice.dto.ShortUrlMappingStatus;
+import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service
 public class ShortUrlMappingServiceImpl implements ShortUrlMappingService {
@@ -45,6 +47,25 @@ public class ShortUrlMappingServiceImpl implements ShortUrlMappingService {
 
         shortUrlMappingDao.initializeShortUrlMappingRepository();
         return ShortUrlMappingStatus.SUCCESS;
+    }
+
+    @Override
+    public Mono<ShortUrlMappingStatus>
+    createMapping(ShortUrlMapping shortUrlMapping) {
+        String username = shortUrlMapping.getUsername();
+        String shortUrl = shortUrlMapping.getShortUrl();
+        String longUrl = shortUrlMapping.getLongUrl();
+
+        if (username == null || username.isBlank()) {
+            return Mono.just(ShortUrlMappingStatus.MISSING_USERNAME);
+        }
+        if (shortUrl == null || shortUrl.isBlank()) {
+            return Mono.just(ShortUrlMappingStatus.MISSING_SHORT_URL);
+        }
+        if (longUrl == null || longUrl.isBlank()) {
+            return Mono.just(ShortUrlMappingStatus.MISSING_LONG_URL);
+        }
+        return shortUrlMappingDao.createMapping(shortUrlMapping);
     }
 
     // ------------------------------------------------------------------------

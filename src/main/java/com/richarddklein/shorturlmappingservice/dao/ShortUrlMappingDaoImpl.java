@@ -6,12 +6,18 @@
 package com.richarddklein.shorturlmappingservice.dao;
 
 import com.richarddklein.shorturlcommonlibrary.aws.ParameterStoreAccessor;
+import com.richarddklein.shorturlmappingservice.dto.ShortUrlMappingStatus;
 import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Mono;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbAsyncTable;
+import software.amazon.awssdk.enhanced.dynamodb.Expression;
 import software.amazon.awssdk.enhanced.dynamodb.model.CreateTableEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
+import software.amazon.awssdk.services.dynamodb.model.ProjectionType;
 import software.amazon.awssdk.services.dynamodb.model.ResourceNotFoundException;
+import software.amazon.awssdk.services.dynamodb.model.ReturnConsumedCapacity;
 import software.amazon.awssdk.services.dynamodb.waiters.DynamoDbWaiter;
 
 /**
@@ -101,6 +107,21 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
         createShortUrlMappingTable();
     }
 
+    @Override
+    public Mono<ShortUrlMappingStatus>
+    createMapping(ShortUrlMapping shortUrlMapping) {
+        return Mono.fromFuture(
+        shortUrlMappingTable.putItem(req -> req
+                .item(shortUrlMapping)
+                .conditionExpression(Expression.builder()
+                        .expression("attribute_not_exists(shortUrl)")
+                        .build())
+        ))
+        .then(Mono.just(ShortUrlMappingStatus.SUCCESS))
+        .onErrorResume(ConditionalCheckFailedException.class, e ->
+                Mono.just(ShortUrlMappingStatus.SHORT_URL_ALREADY_TAKEN));
+    }
+
     // ------------------------------------------------------------------------
     // PRIVATE METHODS
     // ------------------------------------------------------------------------
@@ -132,8 +153,17 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
     private void createShortUrlMappingTable() {
         System.out.print("====> Creating the Short URL Mapping table ...");
 
-        CreateTableEnhancedRequest createTableRequest =
-                CreateTableEnhancedRequest.builder().build();
+        CreateTableEnhancedRequest createTableRequest = CreateTableEnhancedRequest.builder()
+                .globalSecondaryIndices(
+                        gsiBuilder -> gsiBuilder
+                            .indexName("username-index")
+                            .projection(projectionBuilder -> projectionBuilder
+                                    .projectionType(ProjectionType.KEYS_ONLY)),
+                        gsiBuilder -> gsiBuilder
+                            .indexName("longUrl-index")
+                            .projection(projectionBuilder -> projectionBuilder
+                                    .projectionType(ProjectionType.KEYS_ONLY))
+                ).build();
         shortUrlMappingTable.createTable(createTableRequest);
 
         DynamoDbWaiter waiter = DynamoDbWaiter.builder().client(dynamoDbClient).build();
