@@ -5,10 +5,17 @@
 
 package com.richarddklein.shorturlmappingservice.dao;
 
+import java.util.Collections;
+import java.util.function.Predicate;
+
 import com.richarddklein.shorturlcommonlibrary.aws.ParameterStoreAccessor;
+import com.richarddklein.shorturlmappingservice.dto.ShortUrlMappingFilter;
 import com.richarddklein.shorturlmappingservice.dto.ShortUrlMappingStatus;
+import com.richarddklein.shorturlmappingservice.dto.Status;
+import com.richarddklein.shorturlmappingservice.dto.StatusAndShortUrlMappingArray;
 import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbAsyncTable;
 import software.amazon.awssdk.enhanced.dynamodb.Expression;
@@ -120,6 +127,39 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
         .then(Mono.just(ShortUrlMappingStatus.SUCCESS))
         .onErrorResume(ConditionalCheckFailedException.class, e ->
                 Mono.just(ShortUrlMappingStatus.SHORT_URL_ALREADY_TAKEN));
+    }
+
+    @Override
+    public Mono<StatusAndShortUrlMappingArray>
+    getMappings(ShortUrlMappingFilter shortUrlMappingFilter) {
+        String desiredUsername = shortUrlMappingFilter.getUsername();
+        String desiredShortUrl = shortUrlMappingFilter.getShortUrl();
+        String desiredLongUrl = shortUrlMappingFilter.getLongUrl();
+
+        return Flux.from(shortUrlMappingTable.scan().items())
+        .filter(item -> {
+            boolean matches = true;
+            if (!"*".equals(desiredUsername)) {
+                matches = desiredUsername.equals(item.getUsername());
+            }
+            if (!"*".equals(desiredShortUrl)) {
+                matches = matches && desiredShortUrl.equals(item.getShortUrl());
+            }
+            if (!"*".equals(desiredLongUrl)) {
+                matches = matches && desiredLongUrl.equals(item.getLongUrl());
+            }
+            return matches;
+        })
+        .collectList()
+        .map(filteredMappings -> new StatusAndShortUrlMappingArray(
+                new Status(ShortUrlMappingStatus.SUCCESS),
+                filteredMappings))
+        .onErrorResume(e -> {
+            System.out.println("====> " + e.getMessage());
+            return Mono.just(new StatusAndShortUrlMappingArray(
+                    new Status(ShortUrlMappingStatus.UNKNOWN_ERROR),
+                    Collections.emptyList()));
+        });
     }
 
     // ------------------------------------------------------------------------
