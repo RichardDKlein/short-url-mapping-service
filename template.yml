@@ -63,6 +63,16 @@ Resources:
           Properties:
             Path: /create-mapping
             Method: POST
+        GetMappingsViaApiGatewayOrLocalHost:
+          Type: Api
+          Properties:
+            Path: /short-url/mappings/get-mappings
+            Method: GET
+        GetMappingsViaCustomDomain:
+          Type: Api
+          Properties:
+            Path: /get-mappings
+            Method: GET
 
   # Define the IAM Role for the Lambda function
   LambdaExecutionRole:
@@ -110,3 +120,4 @@ Resources:
                 Resource:
                   - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/shortUrl/mappings/tableName
                   - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/shortUrl/users/adminUsername
+                  - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/shortUrl/users/jwtSecretKey

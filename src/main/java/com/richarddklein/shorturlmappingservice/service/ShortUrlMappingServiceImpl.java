@@ -9,7 +9,10 @@ import java.util.Objects;
 
 import com.richarddklein.shorturlcommonlibrary.aws.ParameterStoreAccessor;
 import com.richarddklein.shorturlmappingservice.dao.ShortUrlMappingDao;
+import com.richarddklein.shorturlmappingservice.dto.ShortUrlMappingFilter;
 import com.richarddklein.shorturlmappingservice.dto.ShortUrlMappingStatus;
+import com.richarddklein.shorturlmappingservice.dto.Status;
+import com.richarddklein.shorturlmappingservice.dto.StatusAndShortUrlMappingArray;
 import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Service;
@@ -66,6 +69,31 @@ public class ShortUrlMappingServiceImpl implements ShortUrlMappingService {
             return Mono.just(ShortUrlMappingStatus.MISSING_LONG_URL);
         }
         return shortUrlMappingDao.createMapping(shortUrlMapping);
+    }
+
+    @Override
+    public Mono<StatusAndShortUrlMappingArray>
+    getMappings(ShortUrlMappingFilter shortUrlMappingFilter) {
+        String username = shortUrlMappingFilter.getUsername();
+        String shortUrl = shortUrlMappingFilter.getShortUrl();
+        String longUrl = shortUrlMappingFilter.getLongUrl();
+
+        if (username == null || username.isBlank()) {
+            return Mono.just(new StatusAndShortUrlMappingArray(
+                    new Status(ShortUrlMappingStatus.MISSING_USERNAME),
+                    null));
+        }
+        if (shortUrl == null || shortUrl.isBlank()) {
+            return Mono.just(new StatusAndShortUrlMappingArray(
+                    new Status(ShortUrlMappingStatus.MISSING_SHORT_URL),
+                    null));
+        }
+        if (longUrl == null || longUrl.isBlank()) {
+            return Mono.just(new StatusAndShortUrlMappingArray(
+                    new Status(ShortUrlMappingStatus.MISSING_LONG_URL),
+                    null));
+        }
+        return shortUrlMappingDao.getMappings(shortUrlMappingFilter);
     }
 
     // ------------------------------------------------------------------------

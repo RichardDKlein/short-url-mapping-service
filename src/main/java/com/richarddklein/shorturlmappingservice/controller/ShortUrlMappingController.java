@@ -21,4 +21,8 @@ public interface ShortUrlMappingController {
     @PostMapping("/create-mapping")
     Mono<ResponseEntity<Status>>
     createMapping(@RequestBody ShortUrlMapping shortUrlMapping);
+
+    @GetMapping("/get-mappings")
+    Mono<ResponseEntity<StatusAndShortUrlMappingArray>>
+    getMappings(@RequestBody ShortUrlMappingFilter shortUrlMappingFilter);
 }

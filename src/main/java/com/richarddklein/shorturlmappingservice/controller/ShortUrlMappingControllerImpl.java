@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
+import static com.richarddklein.shorturlmappingservice.dto.ShortUrlMappingStatus.*;
+
 @RestController
 @RequestMapping({"/short-url/mappings", "/"})
 public class ShortUrlMappingControllerImpl implements ShortUrlMappingController {
@@ -108,6 +110,52 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
 
             return new ResponseEntity<>(
                     new Status(shortUrlUserStatus, message),
+                    httpStatus);
+        });
+    }
+
+    @Override
+    public Mono<ResponseEntity<StatusAndShortUrlMappingArray>>
+    getMappings(ShortUrlMappingFilter shortUrlMappingFilter) {
+        return shortUrlMappingService.getMappings(shortUrlMappingFilter)
+        .map(statusAndShortUrlMappingArray -> {
+
+            ShortUrlMappingStatus shortUrlMappingStatus =
+                    statusAndShortUrlMappingArray.getStatus().getStatus();
+
+            HttpStatus httpStatus;
+            String message;
+
+            switch (shortUrlMappingStatus) {
+                case SUCCESS:
+                    httpStatus = HttpStatus.OK;
+                    message = "Mappings successfully retrieved";
+                    break;
+
+                case MISSING_USERNAME:
+                    httpStatus = HttpStatus.BAD_REQUEST;
+                    message = "A non-empty username must be specified";
+                    break;
+
+                case MISSING_SHORT_URL:
+                    httpStatus = HttpStatus.BAD_REQUEST;
+                    message = "A non-empty short URL must be specified";
+                    break;
+
+                case MISSING_LONG_URL:
+                    httpStatus = HttpStatus.BAD_REQUEST;
+                    message = "A non-empty long URL must be specified";
+                    break;
+
+                default:
+                    httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+                    message = "An unknown error occurred";
+                    break;
+            }
+            statusAndShortUrlMappingArray.getStatus().setMessage(message);
+
+            return new ResponseEntity<>(
+                    statusAndShortUrlMappingArray,
                     httpStatus);
         });
     }
