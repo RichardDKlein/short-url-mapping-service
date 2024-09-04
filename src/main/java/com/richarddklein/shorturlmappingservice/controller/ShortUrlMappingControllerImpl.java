@@ -173,14 +173,11 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
 
         return shortUrlMappingService.getMappings(shortUrlMappingFilter)
         .map(statusAndShortUrlMappings -> {
-            ShortUrlMappingStatus shortUrlMappingStatus =
-                    statusAndShortUrlMappings.getStatus().getStatus();
+
             List<ShortUrlMapping> shortUrlMappings =
                     statusAndShortUrlMappings.getShortUrlMappings();
 
             if (shortUrlMappings.isEmpty()) {
-                statusAndShortUrlMappings.getStatus().setMessage(
-                        String.format("Short URL '%s' was not found", shortUrl));
                 return new ResponseEntity<>(
                         new Status(SHORT_URL_NOT_FOUND, String.format(
                                 "Short URL '%s' was not found", shortUrl)),
@@ -198,6 +195,50 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
                                 "Long URL '%s' has invalid syntax", longUrl)),
                         HttpStatus.BAD_REQUEST);
             }
+        });
+    }
+
+    @Override
+    public Mono<ResponseEntity<Status>>
+    changeLongUrl(ShortUrlAndLongUrl shortUrlAndLongUrl) {
+        return shortUrlMappingService.changeLongUrl(shortUrlAndLongUrl)
+        .map(status -> {
+
+            ShortUrlMappingStatus shortUrlMappingStatus = status.getStatus();
+
+            HttpStatus httpStatus;
+            String message;
+
+            switch (shortUrlMappingStatus) {
+                case MISSING_SHORT_URL:
+                    httpStatus = HttpStatus.BAD_REQUEST;
+                    message = "A non-empty short URL must be specified";
+                    break;
+
+                case MISSING_LONG_URL:
+                    httpStatus = HttpStatus.BAD_REQUEST;
+                    message = "A non-empty long URL must be specified";
+                    break;
+
+                case SHORT_URL_NOT_FOUND:
+                    httpStatus = HttpStatus.NOT_FOUND;
+                    message = String.format("Short URL '%s' was not found",
+                            shortUrlAndLongUrl.getShortUrl());
+                    break;
+
+                case SUCCESS:
+                    httpStatus = HttpStatus.OK;
+                    message = "Long URL successfully changed";
+                    break;
+
+                default:
+                    httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+                    message = "An unknown error occurred";
+                    break;
+            }
+            return new ResponseEntity<>(
+                    new Status(shortUrlMappingStatus, message),
+                    httpStatus);
         });
     }
 

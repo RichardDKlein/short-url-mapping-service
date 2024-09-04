@@ -9,10 +9,7 @@ import java.util.Objects;
 
 import com.richarddklein.shorturlcommonlibrary.aws.ParameterStoreAccessor;
 import com.richarddklein.shorturlmappingservice.dao.ShortUrlMappingDao;
-import com.richarddklein.shorturlmappingservice.dto.ShortUrlMappingFilter;
-import com.richarddklein.shorturlmappingservice.dto.ShortUrlMappingStatus;
-import com.richarddklein.shorturlmappingservice.dto.Status;
-import com.richarddklein.shorturlmappingservice.dto.StatusAndShortUrlMappingArray;
+import com.richarddklein.shorturlmappingservice.dto.*;
 import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Service;
@@ -94,6 +91,21 @@ public class ShortUrlMappingServiceImpl implements ShortUrlMappingService {
                     null));
         }
         return shortUrlMappingDao.getMappings(shortUrlMappingFilter);
+    }
+
+    @Override
+    public Mono<Status>
+    changeLongUrl(ShortUrlAndLongUrl shortUrlAndLongUrl) {
+        String shortUrl = shortUrlAndLongUrl.getShortUrl();
+        String longUrl = shortUrlAndLongUrl.getLongUrl();
+
+        if (shortUrl == null || shortUrl.isBlank()) {
+            return Mono.just(new Status(ShortUrlMappingStatus.MISSING_SHORT_URL));
+        }
+        if (longUrl == null || longUrl.isBlank()) {
+            return Mono.just(new Status(ShortUrlMappingStatus.MISSING_LONG_URL));
+        }
+        return shortUrlMappingDao.changeLongUrl(shortUrlAndLongUrl).map(Status::new);
     }
 
     // ------------------------------------------------------------------------

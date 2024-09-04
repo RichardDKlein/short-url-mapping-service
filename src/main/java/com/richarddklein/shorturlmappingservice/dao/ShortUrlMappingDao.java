@@ -5,9 +5,7 @@
 
 package com.richarddklein.shorturlmappingservice.dao;
 
-import com.richarddklein.shorturlmappingservice.dto.ShortUrlMappingFilter;
-import com.richarddklein.shorturlmappingservice.dto.ShortUrlMappingStatus;
-import com.richarddklein.shorturlmappingservice.dto.StatusAndShortUrlMappingArray;
+import com.richarddklein.shorturlmappingservice.dto.*;
 import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
 import reactor.core.publisher.Mono;
 
@@ -19,4 +17,7 @@ public interface ShortUrlMappingDao {
 
     Mono<StatusAndShortUrlMappingArray>
     getMappings(ShortUrlMappingFilter shortUrlMappingFilter);
+
+    Mono<ShortUrlMappingStatus>
+    changeLongUrl(ShortUrlAndLongUrl shortUrlAndLongUrl);
 }

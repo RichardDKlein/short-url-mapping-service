@@ -83,6 +83,16 @@ Resources:
           Properties:
             Path: /{proxy+}
             Method: GET
+        ChangeLongUrlViaApiGatewayOrLocalHost:
+          Type: Api
+          Properties:
+            Path: /short-url/mappings/change-long-url
+            Method: PATCH
+        ChangeLongUrlViaCustomDomain:
+          Type: Api
+          Properties:
+            Path: /change-long-url
+            Method: PATCH
 
   # Define the IAM Role for the Lambda function
   LambdaExecutionRole:

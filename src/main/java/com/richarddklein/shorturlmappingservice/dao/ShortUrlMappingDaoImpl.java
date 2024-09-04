@@ -5,18 +5,18 @@
 
 package com.richarddklein.shorturlmappingservice.dao;
 
+import java.time.Duration;
 import java.util.Collections;
-import java.util.function.Predicate;
+import java.util.List;
 
 import com.richarddklein.shorturlcommonlibrary.aws.ParameterStoreAccessor;
-import com.richarddklein.shorturlmappingservice.dto.ShortUrlMappingFilter;
-import com.richarddklein.shorturlmappingservice.dto.ShortUrlMappingStatus;
-import com.richarddklein.shorturlmappingservice.dto.Status;
-import com.richarddklein.shorturlmappingservice.dto.StatusAndShortUrlMappingArray;
+import com.richarddklein.shorturlmappingservice.dto.*;
 import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
+import com.richarddklein.shorturlmappingservice.exception.ShortUrlNotFoundException;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbAsyncTable;
 import software.amazon.awssdk.enhanced.dynamodb.Expression;
 import software.amazon.awssdk.enhanced.dynamodb.model.CreateTableEnhancedRequest;
@@ -24,7 +24,6 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
 import software.amazon.awssdk.services.dynamodb.model.ProjectionType;
 import software.amazon.awssdk.services.dynamodb.model.ResourceNotFoundException;
-import software.amazon.awssdk.services.dynamodb.model.ReturnConsumedCapacity;
 import software.amazon.awssdk.services.dynamodb.waiters.DynamoDbWaiter;
 
 /**
@@ -162,6 +161,41 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
         });
     }
 
+    @Override
+    public Mono<ShortUrlMappingStatus>
+    changeLongUrl(ShortUrlAndLongUrl shortUrlAndLongUrl) {
+        ShortUrlMappingFilter shortUrlMappingFilter = new ShortUrlMappingFilter(
+                "*", shortUrlAndLongUrl.getShortUrl(), "*");
+
+        return getMappings(shortUrlMappingFilter)
+        .flatMap(statusAndShortUrlMappings -> {
+
+            List<ShortUrlMapping> shortUrlMappings =
+                    statusAndShortUrlMappings.getShortUrlMappings();
+
+            if (shortUrlMappings.isEmpty()) {
+                return Mono.just(ShortUrlMappingStatus.SHORT_URL_NOT_FOUND);
+            }
+
+            ShortUrlMapping shortUrlMapping = shortUrlMappings.getFirst();
+            shortUrlMapping.setLongUrl(shortUrlAndLongUrl.getLongUrl());
+
+            return updateShortUrlMapping(shortUrlMapping)
+            .map(updatedShortUrlMapping -> ShortUrlMappingStatus.SUCCESS);
+        })
+        .retryWhen(Retry.backoff(5, Duration.ofSeconds(1))
+                .filter(e -> e instanceof ConditionalCheckFailedException)
+                .doAfterRetry(retrySignal -> System.out.println(
+                        "====> Retrying after error: " + retrySignal.failure().getMessage()))
+        )
+        .onErrorResume(e -> {
+            System.out.println("====> changeLongUrl() failed: " + e.getMessage());
+            return (e instanceof ShortUrlNotFoundException)
+                    ? Mono.just(ShortUrlMappingStatus.SHORT_URL_NOT_FOUND)
+                    : Mono.just(ShortUrlMappingStatus.UNKNOWN_ERROR);
+        });
+    }
+
     // ------------------------------------------------------------------------
     // PRIVATE METHODS
     // ------------------------------------------------------------------------
@@ -213,5 +247,22 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
         waiter.close();
 
         System.out.println(" done!");
+    }
+
+    private Mono<ShortUrlMapping>
+    updateShortUrlMapping(ShortUrlMapping shortUrlMapping) {
+        return Mono.fromFuture(shortUrlMappingTable.updateItem(shortUrlMapping))
+        .onErrorResume(ConditionalCheckFailedException.class, e -> {
+            // Version check failed. Someone updated the ShortUrlMapping item in the
+            // database after we read the item, so the item we just tried to update
+            // contains stale data.
+            System.out.println("====> Version check failed: " + e.getMessage());
+            return Mono.error(e);
+        })
+        .onErrorResume(e -> {
+            // Some other exception occurred.
+            System.out.println("====> Unexpected exception: " + e.getMessage());
+            return Mono.error(e);
+        });
     }
 }

@@ -29,4 +29,8 @@ public interface ShortUrlMappingController {
     @GetMapping("/{shortUrl}")
     Mono<ResponseEntity<?>>
     redirectShortUrlToLongUrl(@PathVariable String shortUrl);
+
+    @PatchMapping("/change-long-url")
+    Mono<ResponseEntity<Status>>
+    changeLongUrl(@RequestBody ShortUrlAndLongUrl shortUrlAndLongUrl);
 }
