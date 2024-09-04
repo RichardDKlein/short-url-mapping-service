@@ -25,4 +25,8 @@ public interface ShortUrlMappingController {
     @GetMapping("/get-mappings")
     Mono<ResponseEntity<StatusAndShortUrlMappingArray>>
     getMappings(@RequestBody ShortUrlMappingFilter shortUrlMappingFilter);
+
+    @GetMapping("/{shortUrl}")
+    Mono<ResponseEntity<?>>
+    redirectShortUrlToLongUrl(@PathVariable String shortUrl);
 }

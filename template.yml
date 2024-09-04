@@ -73,6 +73,16 @@ Resources:
           Properties:
             Path: /get-mappings
             Method: GET
+        RedirectShortUrlToLongUrlViaApiGatewayOrLocalHost:
+          Type: Api
+          Properties:
+            Path: /short-url/mappings/{proxy+}
+            Method: GET
+        RedirectShortUrlToLongUrlViaCustomDomain:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: GET
 
   # Define the IAM Role for the Lambda function
   LambdaExecutionRole:
