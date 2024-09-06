@@ -242,6 +242,49 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
         });
     }
 
+    @Override
+    public Mono<ResponseEntity<Status>>
+    deleteMappings(ShortUrlMappingFilter shortUrlMappingFilter) {
+        return shortUrlMappingService.deleteMappings(shortUrlMappingFilter)
+        .map(status -> {
+
+            ShortUrlMappingStatus shortUrlMappingStatus = status.getStatus();
+
+            HttpStatus httpStatus;
+            String message;
+
+            switch (shortUrlMappingStatus) {
+                case SUCCESS:
+                    httpStatus = HttpStatus.OK;
+                    message = "Mappings successfully deleted";
+                    break;
+
+                case MISSING_USERNAME:
+                    httpStatus = HttpStatus.BAD_REQUEST;
+                    message = "A non-empty username must be specified";
+                    break;
+
+                case MISSING_SHORT_URL:
+                    httpStatus = HttpStatus.BAD_REQUEST;
+                    message = "A non-empty short URL must be specified";
+                    break;
+
+                case MISSING_LONG_URL:
+                    httpStatus = HttpStatus.BAD_REQUEST;
+                    message = "A non-empty long URL must be specified";
+                    break;
+
+                default:
+                    httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+                    message = "An unknown error occurred";
+                    break;
+            }
+            status.setMessage(message);
+
+            return new ResponseEntity<>(status, httpStatus);
+        });
+    }
+
     // ------------------------------------------------------------------------
     // PRIVATE METHODS
     // ------------------------------------------------------------------------

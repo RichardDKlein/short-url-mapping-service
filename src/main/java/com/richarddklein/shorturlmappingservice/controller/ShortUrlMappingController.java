@@ -33,4 +33,8 @@ public interface ShortUrlMappingController {
     @PatchMapping("/change-long-url")
     Mono<ResponseEntity<Status>>
     changeLongUrl(@RequestBody ShortUrlAndLongUrl shortUrlAndLongUrl);
+
+    @DeleteMapping("/delete-mappings")
+    Mono<ResponseEntity<Status>>
+    deleteMappings(@RequestBody ShortUrlMappingFilter shortUrlMappingFilter);
 }

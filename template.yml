@@ -93,6 +93,16 @@ Resources:
           Properties:
             Path: /change-long-url
             Method: PATCH
+        DeleteMappingsViaApiGatewayOrLocalHost:
+          Type: Api
+          Properties:
+            Path: /short-url/mappings/delete-mappings
+            Method: DELETE
+        DeleteMappingsViaCustomDomain:
+          Type: Api
+          Properties:
+            Path: /delete-mappings
+            Method: DELETE
 
   # Define the IAM Role for the Lambda function
   LambdaExecutionRole:

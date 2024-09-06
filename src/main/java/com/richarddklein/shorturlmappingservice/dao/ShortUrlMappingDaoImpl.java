@@ -196,6 +196,36 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
         });
     }
 
+    @Override
+    public Mono<Status>
+    deleteMappings(ShortUrlMappingFilter shortUrlMappingFilter) {
+        String desiredUsername = shortUrlMappingFilter.getUsername();
+        String desiredShortUrl = shortUrlMappingFilter.getShortUrl();
+        String desiredLongUrl = shortUrlMappingFilter.getLongUrl();
+
+        return Flux.from(shortUrlMappingTable.scan().items())
+        .filter(item -> {
+            boolean matches = true;
+            if (!"*".equals(desiredUsername)) {
+                matches = desiredUsername.equals(item.getUsername());
+            }
+            if (!"*".equals(desiredShortUrl)) {
+                matches = matches && desiredShortUrl.equals(item.getShortUrl());
+            }
+            if (!"*".equals(desiredLongUrl)) {
+                matches = matches && desiredLongUrl.equals(item.getLongUrl());
+            }
+            return matches;
+        })
+        .flatMap(this::deleteShortUrlMapping)
+        .then(Mono.just(new Status(ShortUrlMappingStatus.SUCCESS)))
+        .onErrorResume(e -> {
+            System.out.println("====> " + e.getMessage());
+            System.out.println("====> deleteMappings() failed: " + e.getMessage());
+            return Mono.just(new Status(ShortUrlMappingStatus.UNKNOWN_ERROR));
+        });
+    }
+
     // ------------------------------------------------------------------------
     // PRIVATE METHODS
     // ------------------------------------------------------------------------
@@ -262,6 +292,15 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
         .onErrorResume(e -> {
             // Some other exception occurred.
             System.out.println("====> Unexpected exception: " + e.getMessage());
+            return Mono.error(e);
+        });
+    }
+
+    private Mono<ShortUrlMapping>
+    deleteShortUrlMapping(ShortUrlMapping shortUrlMapping) {
+        return Mono.fromFuture(shortUrlMappingTable.deleteItem(shortUrlMapping))
+        .onErrorResume(e -> {
+            System.out.println("====> deleteShortUrlMapping() failed: " + e.getMessage());
             return Mono.error(e);
         });
     }

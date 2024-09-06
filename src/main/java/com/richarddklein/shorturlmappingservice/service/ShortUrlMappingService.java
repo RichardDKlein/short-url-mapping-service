@@ -22,4 +22,7 @@ public interface ShortUrlMappingService {
 
     Mono<Status>
     changeLongUrl(ShortUrlAndLongUrl shortUrlAndLongUrl);
+
+    Mono<Status>
+    deleteMappings(ShortUrlMappingFilter shortUrlMappingFilter);
 }

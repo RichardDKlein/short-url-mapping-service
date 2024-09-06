@@ -20,4 +20,7 @@ public interface ShortUrlMappingDao {
 
     Mono<ShortUrlMappingStatus>
     changeLongUrl(ShortUrlAndLongUrl shortUrlAndLongUrl);
+
+    Mono<Status>
+    deleteMappings(ShortUrlMappingFilter shortUrlMappingFilter);
 }

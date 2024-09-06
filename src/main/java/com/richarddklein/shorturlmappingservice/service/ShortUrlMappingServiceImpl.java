@@ -108,6 +108,25 @@ public class ShortUrlMappingServiceImpl implements ShortUrlMappingService {
         return shortUrlMappingDao.changeLongUrl(shortUrlAndLongUrl).map(Status::new);
     }
 
+    @Override
+    public Mono<Status>
+    deleteMappings(ShortUrlMappingFilter shortUrlMappingFilter) {
+        String username = shortUrlMappingFilter.getUsername();
+        String shortUrl = shortUrlMappingFilter.getShortUrl();
+        String longUrl = shortUrlMappingFilter.getLongUrl();
+
+        if (username == null || username.isBlank()) {
+            return Mono.just(new Status(ShortUrlMappingStatus.MISSING_USERNAME));
+        }
+        if (shortUrl == null || shortUrl.isBlank()) {
+            return Mono.just(new Status(ShortUrlMappingStatus.MISSING_SHORT_URL));
+        }
+        if (longUrl == null || longUrl.isBlank()) {
+            return Mono.just(new Status(ShortUrlMappingStatus.MISSING_LONG_URL));
+        }
+        return shortUrlMappingDao.deleteMappings(shortUrlMappingFilter);
+    }
+
     // ------------------------------------------------------------------------
     // PRIVATE METHODS
     // ------------------------------------------------------------------------
