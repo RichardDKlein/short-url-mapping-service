@@ -30,7 +30,6 @@ public class ServiceConfig {
     @Bean
     public ShortUrlMappingService
     shortUrlMappingService() {
-        return new ShortUrlMappingServiceImpl(
-                shortUrlMappingDao);
+        return new ShortUrlMappingServiceImpl(shortUrlMappingDao);
     }
 }

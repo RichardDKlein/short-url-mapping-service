@@ -23,9 +23,7 @@ public class ShortUrlMappingServiceImpl implements ShortUrlMappingService {
     // PUBLIC METHODS
     // ------------------------------------------------------------------------
 
-    public ShortUrlMappingServiceImpl(
-            ShortUrlMappingDao shortUrlMappingDao) {
-
+    public ShortUrlMappingServiceImpl(ShortUrlMappingDao shortUrlMappingDao) {
         this.shortUrlMappingDao = shortUrlMappingDao;
     }
 
