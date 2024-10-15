@@ -31,7 +31,6 @@ public class ServiceConfig {
     public ShortUrlMappingService
     shortUrlMappingService() {
         return new ShortUrlMappingServiceImpl(
-                shortUrlMappingDao,
-                parameterStoreAccessor);
+                shortUrlMappingDao);
     }
 }

@@ -5,22 +5,15 @@
 
 package com.richarddklein.shorturlmappingservice.controller;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-
 import com.richarddklein.shorturlmappingservice.dto.*;
 import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
 import com.richarddklein.shorturlmappingservice.service.ShortUrlMappingService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
-
-import static com.richarddklein.shorturlmappingservice.dto.ShortUrlMappingStatus.*;
 
 @RestController
 @RequestMapping({"/short-url/mappings", "/"})
@@ -162,39 +155,6 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
             return new ResponseEntity<>(
                     statusAndShortUrlMappingArray,
                     httpStatus);
-        });
-    }
-
-    @Override
-    public Mono<ResponseEntity<?>>
-    redirectShortUrlToLongUrl(@PathVariable String shortUrl) {
-        ShortUrlMappingFilter shortUrlMappingFilter =
-                new ShortUrlMappingFilter("*", shortUrl, "*");
-
-        return shortUrlMappingService.getMappings(shortUrlMappingFilter)
-        .map(statusAndShortUrlMappings -> {
-
-            List<ShortUrlMapping> shortUrlMappings =
-                    statusAndShortUrlMappings.getShortUrlMappings();
-
-            if (shortUrlMappings.isEmpty()) {
-                return new ResponseEntity<>(
-                        new Status(SHORT_URL_NOT_FOUND, String.format(
-                                "Short URL '%s' was not found", shortUrl)),
-                        HttpStatus.NOT_FOUND);
-            }
-            String longUrl = shortUrlMappings.getFirst().getLongUrl();
-            try {
-                URI longUri = new URI(longUrl);
-                return ResponseEntity
-                        .status(HttpStatus.TEMPORARY_REDIRECT)
-                        .location(longUri).build();
-            } catch (URISyntaxException e) {
-                return new ResponseEntity<>(
-                        new Status(BAD_LONG_URL_SYNTAX, String.format(
-                                "Long URL '%s' has invalid syntax", longUrl)),
-                        HttpStatus.BAD_REQUEST);
-            }
         });
     }
 

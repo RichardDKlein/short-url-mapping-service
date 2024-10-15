@@ -18,18 +18,15 @@ import reactor.core.publisher.Mono;
 @Service
 public class ShortUrlMappingServiceImpl implements ShortUrlMappingService {
     private final ShortUrlMappingDao shortUrlMappingDao;
-    private final ParameterStoreAccessor parameterStoreAccessor;
 
     // ------------------------------------------------------------------------
     // PUBLIC METHODS
     // ------------------------------------------------------------------------
 
     public ShortUrlMappingServiceImpl(
-            ShortUrlMappingDao shortUrlMappingDao,
-            ParameterStoreAccessor parameterStoreAccessor) {
+            ShortUrlMappingDao shortUrlMappingDao) {
 
         this.shortUrlMappingDao = shortUrlMappingDao;
-        this.parameterStoreAccessor = parameterStoreAccessor;
     }
 
     // Initialization of the Short URL Mapping repository is performed rarely,
