@@ -5,6 +5,8 @@
 
 package com.richarddklein.shorturlmappingservice.dto;
 
+import com.richarddklein.shorturlcommonlibrary.status.ShortUrlMappingStatus;
+
 public class Status {
     private ShortUrlMappingStatus status;
     private String message;

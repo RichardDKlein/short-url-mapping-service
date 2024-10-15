@@ -5,6 +5,7 @@
 
 package com.richarddklein.shorturlmappingservice.controller;
 
+import com.richarddklein.shorturlcommonlibrary.status.ShortUrlMappingStatus;
 import com.richarddklein.shorturlmappingservice.dto.*;
 import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
 import com.richarddklein.shorturlmappingservice.service.ShortUrlMappingService;

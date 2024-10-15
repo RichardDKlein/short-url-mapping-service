@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.richarddklein.shorturlcommonlibrary.aws.ParameterStoreAccessor;
+import com.richarddklein.shorturlcommonlibrary.status.ShortUrlMappingStatus;
 import com.richarddklein.shorturlmappingservice.dto.*;
 import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
 import com.richarddklein.shorturlmappingservice.exception.ShortUrlNotFoundException;

@@ -5,6 +5,7 @@
 
 package com.richarddklein.shorturlmappingservice.dao;
 
+import com.richarddklein.shorturlcommonlibrary.status.ShortUrlMappingStatus;
 import com.richarddklein.shorturlmappingservice.dto.*;
 import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
 import reactor.core.publisher.Mono;

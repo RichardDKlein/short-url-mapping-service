@@ -5,7 +5,7 @@
 
 package com.richarddklein.shorturlmappingservice.exception;
 
-import com.richarddklein.shorturlmappingservice.dto.ShortUrlMappingStatus;
+import com.richarddklein.shorturlcommonlibrary.status.ShortUrlMappingStatus;
 import com.richarddklein.shorturlmappingservice.dto.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
