@@ -6,6 +6,7 @@
 package com.richarddklein.shorturlmappingservice.config;
 
 import com.richarddklein.shorturlcommonlibrary.aws.ParameterStoreAccessor;
+import com.richarddklein.shorturlcommonlibrary.security.util.HostUtils;
 import com.richarddklein.shorturlmappingservice.dao.ShortUrlMappingDao;
 import com.richarddklein.shorturlmappingservice.service.ShortUrlMappingService;
 import com.richarddklein.shorturlmappingservice.service.ShortUrlMappingServiceImpl;
@@ -25,11 +26,11 @@ public class ServiceConfig {
     ShortUrlMappingDao shortUrlMappingDao;
 
     @Autowired
-    ParameterStoreAccessor parameterStoreAccessor;
+    HostUtils hostUtils;
 
     @Bean
     public ShortUrlMappingService
     shortUrlMappingService() {
-        return new ShortUrlMappingServiceImpl(shortUrlMappingDao);
+        return new ShortUrlMappingServiceImpl(shortUrlMappingDao, hostUtils);
     }
 }

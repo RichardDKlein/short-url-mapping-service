@@ -5,9 +5,7 @@
 
 package com.richarddklein.shorturlmappingservice.service;
 
-import java.util.Objects;
-
-import com.richarddklein.shorturlcommonlibrary.aws.ParameterStoreAccessor;
+import com.richarddklein.shorturlcommonlibrary.security.util.HostUtils;
 import com.richarddklein.shorturlcommonlibrary.status.ShortUrlMappingStatus;
 import com.richarddklein.shorturlmappingservice.dao.ShortUrlMappingDao;
 import com.richarddklein.shorturlmappingservice.dto.*;
@@ -19,13 +17,18 @@ import reactor.core.publisher.Mono;
 @Service
 public class ShortUrlMappingServiceImpl implements ShortUrlMappingService {
     private final ShortUrlMappingDao shortUrlMappingDao;
+    private final HostUtils hostUtils;
 
     // ------------------------------------------------------------------------
     // PUBLIC METHODS
     // ------------------------------------------------------------------------
 
-    public ShortUrlMappingServiceImpl(ShortUrlMappingDao shortUrlMappingDao) {
+    public ShortUrlMappingServiceImpl(
+            ShortUrlMappingDao shortUrlMappingDao,
+            HostUtils hostUtils) {
+
         this.shortUrlMappingDao = shortUrlMappingDao;
+        this.hostUtils = hostUtils;
     }
 
     // Initialization of the Short URL Mapping repository is performed rarely,
@@ -35,9 +38,7 @@ public class ShortUrlMappingServiceImpl implements ShortUrlMappingService {
     @Override
     public ShortUrlMappingStatus
     initializeShortUrlMappingRepository(ServerHttpRequest request) {
-        if (!isRunningLocally(Objects.requireNonNull(
-                request.getRemoteAddress()).getHostString())) {
-
+        if (!hostUtils.isRunningLocally(request)) {
             return ShortUrlMappingStatus.NOT_ON_LOCAL_MACHINE;
         }
 
@@ -126,17 +127,4 @@ public class ShortUrlMappingServiceImpl implements ShortUrlMappingService {
     // ------------------------------------------------------------------------
     // PRIVATE METHODS
     // ------------------------------------------------------------------------
-
-    /**
-     * Is the service running locally?
-     *
-     * <p>Determine whether the Short URL User Service is running on your local
-     * machine, or in the AWS cloud.</p>
-     *
-     * @param hostString The host that sent the HTTP request.
-     * @return 'true' if the service is running locally, 'false' otherwise.
-     */
-    private boolean isRunningLocally(String hostString) {
-        return hostString.contains("localhost");
-    }
 }
