@@ -5,9 +5,8 @@
 
 package com.richarddklein.shorturlmappingservice.controller;
 
-import com.richarddklein.shorturlcommonlibrary.status.ShortUrlMappingStatus;
-import com.richarddklein.shorturlmappingservice.dto.*;
-import com.richarddklein.shorturlmappingservice.entity.ShortUrlMapping;
+import com.richarddklein.shorturlcommonlibrary.service.shorturlmappingservice.dto.*;
+import com.richarddklein.shorturlcommonlibrary.service.shorturlmappingservice.entity.ShortUrlMapping;
 import com.richarddklein.shorturlmappingservice.service.ShortUrlMappingService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
