@@ -5,7 +5,7 @@
 
 package com.richarddklein.shorturlmappingservice.service;
 
-import com.richarddklein.shorturlcommonlibrary.security.util.HostUtils;
+import com.richarddklein.shorturlcommonlibrary.environment.HostUtils;
 import com.richarddklein.shorturlcommonlibrary.service.shorturlmappingservice.dto.*;
 import com.richarddklein.shorturlcommonlibrary.service.shorturlmappingservice.entity.ShortUrlMapping;
 import com.richarddklein.shorturlmappingservice.dao.ShortUrlMappingDao;

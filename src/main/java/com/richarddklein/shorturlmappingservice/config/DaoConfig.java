@@ -5,16 +5,13 @@
 
 package com.richarddklein.shorturlmappingservice.config;
 
-import com.richarddklein.shorturlcommonlibrary.aws.ParameterStoreAccessor;
-import com.richarddklein.shorturlcommonlibrary.config.AwsConfig;
-import com.richarddklein.shorturlcommonlibrary.config.SecurityConfig;
+import com.richarddklein.shorturlcommonlibrary.environment.ParameterStoreAccessor;
 import com.richarddklein.shorturlcommonlibrary.service.shorturlmappingservice.entity.ShortUrlMapping;
 import com.richarddklein.shorturlmappingservice.dao.ShortUrlMappingDao;
 import com.richarddklein.shorturlmappingservice.dao.ShortUrlMappingDaoImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbAsyncTable;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedAsyncClient;
@@ -29,7 +26,6 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
  * to implement the DAO package.</p>
  */
 @Configuration
-@Import({AwsConfig.class, SecurityConfig.class})
 public class DaoConfig {
     @Autowired
     ParameterStoreAccessor parameterStoreAccessor;
