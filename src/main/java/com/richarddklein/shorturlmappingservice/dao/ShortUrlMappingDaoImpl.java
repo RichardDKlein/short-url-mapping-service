@@ -117,15 +117,15 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
     public Mono<ShortUrlMappingStatus>
     createMapping(ShortUrlMapping shortUrlMapping) {
         return Mono.fromFuture(
-        shortUrlMappingTable.putItem(req -> req
-                .item(shortUrlMapping)
-                .conditionExpression(Expression.builder()
-                        .expression("attribute_not_exists(shortUrl)")
-                        .build())
-        ))
-        .then(Mono.just(ShortUrlMappingStatus.SUCCESS))
-        .onErrorResume(ConditionalCheckFailedException.class, e ->
-                Mono.just(ShortUrlMappingStatus.SHORT_URL_ALREADY_TAKEN));
+            shortUrlMappingTable.putItem(req -> req
+                    .item(shortUrlMapping)
+                    .conditionExpression(Expression.builder()
+                            .expression("attribute_not_exists(shortUrl)")
+                            .build())
+            ))
+            .then(Mono.just(ShortUrlMappingStatus.SUCCESS))
+            .onErrorResume(ConditionalCheckFailedException.class, e ->
+                    Mono.just(ShortUrlMappingStatus.SHORT_URL_ALREADY_TAKEN));
     }
 
     @Override
@@ -136,29 +136,29 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
         String desiredLongUrl = shortUrlMappingFilter.getLongUrl();
 
         return Flux.from(shortUrlMappingTable.scan().items())
-        .filter(item -> {
-            boolean matches = true;
-            if (!"*".equals(desiredUsername)) {
-                matches = desiredUsername.equals(item.getUsername());
-            }
-            if (!"*".equals(desiredShortUrl)) {
-                matches = matches && desiredShortUrl.equals(item.getShortUrl());
-            }
-            if (!"*".equals(desiredLongUrl)) {
-                matches = matches && desiredLongUrl.equals(item.getLongUrl());
-            }
-            return matches;
-        })
-        .collectList()
-        .map(filteredMappings -> new StatusAndShortUrlMappingArray(
-                new Status(ShortUrlMappingStatus.SUCCESS),
-                filteredMappings))
-        .onErrorResume(e -> {
-            System.out.println("====> " + e.getMessage());
-            return Mono.just(new StatusAndShortUrlMappingArray(
-                    new Status(ShortUrlMappingStatus.UNKNOWN_ERROR),
-                    Collections.emptyList()));
-        });
+            .filter(item -> {
+                boolean matches = true;
+                if (!"*".equals(desiredUsername)) {
+                    matches = desiredUsername.equals(item.getUsername());
+                }
+                if (!"*".equals(desiredShortUrl)) {
+                    matches = matches && desiredShortUrl.equals(item.getShortUrl());
+                }
+                if (!"*".equals(desiredLongUrl)) {
+                    matches = matches && desiredLongUrl.equals(item.getLongUrl());
+                }
+                return matches;
+            })
+            .collectList()
+            .map(filteredMappings -> new StatusAndShortUrlMappingArray(
+                    new Status(ShortUrlMappingStatus.SUCCESS),
+                    filteredMappings))
+            .onErrorResume(e -> {
+                System.out.println("====> " + e.getMessage());
+                return Mono.just(new StatusAndShortUrlMappingArray(
+                        new Status(ShortUrlMappingStatus.UNKNOWN_ERROR),
+                        Collections.emptyList()));
+            });
     }
 
     @Override
@@ -168,32 +168,31 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
                 "*", shortUrlAndLongUrl.getShortUrl(), "*");
 
         return getMappings(shortUrlMappingFilter)
-        .flatMap(statusAndShortUrlMappings -> {
+            .flatMap(statusAndShortUrlMappings -> {
+                List<ShortUrlMapping> shortUrlMappings =
+                        statusAndShortUrlMappings.getShortUrlMappings();
 
-            List<ShortUrlMapping> shortUrlMappings =
-                    statusAndShortUrlMappings.getShortUrlMappings();
+                if (shortUrlMappings.isEmpty()) {
+                    return Mono.just(ShortUrlMappingStatus.SHORT_URL_NOT_FOUND);
+                }
 
-            if (shortUrlMappings.isEmpty()) {
-                return Mono.just(ShortUrlMappingStatus.SHORT_URL_NOT_FOUND);
-            }
+                ShortUrlMapping shortUrlMapping = shortUrlMappings.getFirst();
+                shortUrlMapping.setLongUrl(shortUrlAndLongUrl.getLongUrl());
 
-            ShortUrlMapping shortUrlMapping = shortUrlMappings.getFirst();
-            shortUrlMapping.setLongUrl(shortUrlAndLongUrl.getLongUrl());
-
-            return updateShortUrlMapping(shortUrlMapping)
-            .map(updatedShortUrlMapping -> ShortUrlMappingStatus.SUCCESS);
-        })
-        .retryWhen(Retry.backoff(5, Duration.ofSeconds(1))
-                .filter(e -> e instanceof ConditionalCheckFailedException)
-                .doAfterRetry(retrySignal -> System.out.println(
-                        "====> Retrying after error: " + retrySignal.failure().getMessage()))
-        )
-        .onErrorResume(e -> {
-            System.out.println("====> changeLongUrl() failed: " + e.getMessage());
-            return (e instanceof ShortUrlNotFoundException)
-                    ? Mono.just(ShortUrlMappingStatus.SHORT_URL_NOT_FOUND)
-                    : Mono.just(ShortUrlMappingStatus.UNKNOWN_ERROR);
-        });
+                return updateShortUrlMapping(shortUrlMapping)
+                    .map(updatedShortUrlMapping -> ShortUrlMappingStatus.SUCCESS);
+            })
+            .retryWhen(Retry.backoff(5, Duration.ofSeconds(1))
+                    .filter(e -> e instanceof ConditionalCheckFailedException)
+                    .doAfterRetry(retrySignal -> System.out.println(
+                            "====> Retrying after error: " + retrySignal.failure().getMessage()))
+            )
+            .onErrorResume(e -> {
+                System.out.println("====> changeLongUrl() failed: " + e.getMessage());
+                return (e instanceof ShortUrlNotFoundException)
+                        ? Mono.just(ShortUrlMappingStatus.SHORT_URL_NOT_FOUND)
+                        : Mono.just(ShortUrlMappingStatus.UNKNOWN_ERROR);
+            });
     }
 
     @Override
@@ -204,26 +203,26 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
         String desiredLongUrl = shortUrlMappingFilter.getLongUrl();
 
         return Flux.from(shortUrlMappingTable.scan().items())
-        .filter(item -> {
-            boolean matches = true;
-            if (!"*".equals(desiredUsername)) {
-                matches = desiredUsername.equals(item.getUsername());
-            }
-            if (!"*".equals(desiredShortUrl)) {
-                matches = matches && desiredShortUrl.equals(item.getShortUrl());
-            }
-            if (!"*".equals(desiredLongUrl)) {
-                matches = matches && desiredLongUrl.equals(item.getLongUrl());
-            }
-            return matches;
-        })
-        .flatMap(this::deleteShortUrlMapping)
-        .then(Mono.just(new Status(ShortUrlMappingStatus.SUCCESS)))
-        .onErrorResume(e -> {
-            System.out.println("====> " + e.getMessage());
-            System.out.println("====> deleteMappings() failed: " + e.getMessage());
-            return Mono.just(new Status(ShortUrlMappingStatus.UNKNOWN_ERROR));
-        });
+            .filter(item -> {
+                boolean matches = true;
+                if (!"*".equals(desiredUsername)) {
+                    matches = desiredUsername.equals(item.getUsername());
+                }
+                if (!"*".equals(desiredShortUrl)) {
+                    matches = matches && desiredShortUrl.equals(item.getShortUrl());
+                }
+                if (!"*".equals(desiredLongUrl)) {
+                    matches = matches && desiredLongUrl.equals(item.getLongUrl());
+                }
+                return matches;
+            })
+            .flatMap(this::deleteShortUrlMapping)
+            .then(Mono.just(new Status(ShortUrlMappingStatus.SUCCESS)))
+            .onErrorResume(e -> {
+                System.out.println("====> " + e.getMessage());
+                System.out.println("====> deleteMappings() failed: " + e.getMessage());
+                return Mono.just(new Status(ShortUrlMappingStatus.UNKNOWN_ERROR));
+            });
     }
 
     // ------------------------------------------------------------------------
@@ -246,9 +245,9 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
 
         DynamoDbWaiter waiter = DynamoDbWaiter.builder().client(dynamoDbClient).build();
         waiter.waitUntilTableNotExists(builder -> builder
-                // synchronous logic ok here
-                .tableName(parameterStoreAccessor.getShortUrlMappingTableName().block())
-                .build());
+            // synchronous logic ok here
+            .tableName(parameterStoreAccessor.getShortUrlMappingTableName().block())
+            .build());
         waiter.close();
 
         System.out.println(" done!");
@@ -258,22 +257,23 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
         System.out.print("====> Creating the Short URL Mapping table ...");
 
         CreateTableEnhancedRequest createTableRequest = CreateTableEnhancedRequest.builder()
-                .globalSecondaryIndices(
-                        gsiBuilder -> gsiBuilder
-                            .indexName("username-index")
-                            .projection(projectionBuilder -> projectionBuilder
-                                    .projectionType(ProjectionType.KEYS_ONLY)),
-                        gsiBuilder -> gsiBuilder
-                            .indexName("longUrl-index")
-                            .projection(projectionBuilder -> projectionBuilder
-                                    .projectionType(ProjectionType.KEYS_ONLY))
-                ).build();
+            .globalSecondaryIndices(
+                gsiBuilder -> gsiBuilder
+                    .indexName("username-index")
+                    .projection(projectionBuilder -> projectionBuilder
+                            .projectionType(ProjectionType.KEYS_ONLY)),
+                gsiBuilder -> gsiBuilder
+                    .indexName("longUrl-index")
+                    .projection(projectionBuilder -> projectionBuilder
+                            .projectionType(ProjectionType.KEYS_ONLY))
+            )
+            .build();
         shortUrlMappingTable.createTable(createTableRequest);
 
         DynamoDbWaiter waiter = DynamoDbWaiter.builder().client(dynamoDbClient).build();
         waiter.waitUntilTableExists(builder -> builder
-                // synchronous logic ok here
-                .tableName(parameterStoreAccessor.getShortUrlMappingTableName().block()).build());
+            // synchronous logic ok here
+            .tableName(parameterStoreAccessor.getShortUrlMappingTableName().block()).build());
         waiter.close();
 
         System.out.println(" done!");
@@ -282,26 +282,26 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
     private Mono<ShortUrlMapping>
     updateShortUrlMapping(ShortUrlMapping shortUrlMapping) {
         return Mono.fromFuture(shortUrlMappingTable.updateItem(shortUrlMapping))
-        .onErrorResume(ConditionalCheckFailedException.class, e -> {
-            // Version check failed. Someone updated the ShortUrlMapping item in the
-            // database after we read the item, so the item we just tried to update
-            // contains stale data.
-            System.out.println("====> Version check failed: " + e.getMessage());
-            return Mono.error(e);
-        })
-        .onErrorResume(e -> {
-            // Some other exception occurred.
-            System.out.println("====> Unexpected exception: " + e.getMessage());
-            return Mono.error(e);
-        });
+            .onErrorResume(ConditionalCheckFailedException.class, e -> {
+                // Version check failed. Someone updated the ShortUrlMapping item in the
+                // database after we read the item, so the item we just tried to update
+                // contains stale data.
+                System.out.println("====> Version check failed: " + e.getMessage());
+                return Mono.error(e);
+            })
+            .onErrorResume(e -> {
+                // Some other exception occurred.
+                System.out.println("====> Unexpected exception: " + e.getMessage());
+                return Mono.error(e);
+            });
     }
 
     private Mono<ShortUrlMapping>
     deleteShortUrlMapping(ShortUrlMapping shortUrlMapping) {
         return Mono.fromFuture(shortUrlMappingTable.deleteItem(shortUrlMapping))
-        .onErrorResume(e -> {
-            System.out.println("====> deleteShortUrlMapping() failed: " + e.getMessage());
-            return Mono.error(e);
-        });
+            .onErrorResume(e -> {
+                System.out.println("====> deleteShortUrlMapping() failed: " + e.getMessage());
+                return Mono.error(e);
+            });
     }
 }

@@ -67,182 +67,178 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
     public Mono<ResponseEntity<Status>>
     createMapping(ShortUrlMapping shortUrlMapping) {
         return shortUrlMappingService.createMapping(shortUrlMapping)
-        .map(shortUrlUserStatus -> {
+            .map(shortUrlUserStatus -> {
+                HttpStatus httpStatus;
+                String message;
 
-            HttpStatus httpStatus;
-            String message;
+                switch (shortUrlUserStatus) {
+                    case SUCCESS:
+                        httpStatus = HttpStatus.OK;
+                        message = "Mapping successfully created";
+                        break;
 
-            switch (shortUrlUserStatus) {
-                case SUCCESS:
-                    httpStatus = HttpStatus.OK;
-                    message = "Mapping successfully created";
-                    break;
+                    case MISSING_USERNAME:
+                        httpStatus = HttpStatus.BAD_REQUEST;
+                        message = "A non-empty username must be specified";
+                        break;
 
-                case MISSING_USERNAME:
-                    httpStatus = HttpStatus.BAD_REQUEST;
-                    message = "A non-empty username must be specified";
-                    break;
+                    case MISSING_SHORT_URL:
+                        httpStatus = HttpStatus.BAD_REQUEST;
+                        message = "A non-empty short URL must be specified";
+                        break;
 
-                case MISSING_SHORT_URL:
-                    httpStatus = HttpStatus.BAD_REQUEST;
-                    message = "A non-empty short URL must be specified";
-                    break;
+                    case MISSING_LONG_URL:
+                        httpStatus = HttpStatus.BAD_REQUEST;
+                        message = "A non-empty long URL must be specified";
+                        break;
 
-                case MISSING_LONG_URL:
-                    httpStatus = HttpStatus.BAD_REQUEST;
-                    message = "A non-empty long URL must be specified";
-                    break;
+                    case SHORT_URL_ALREADY_TAKEN:
+                        httpStatus = HttpStatus.CONFLICT;
+                        message = String.format(
+                                "Short URL '%s' is already taken",
+                                shortUrlMapping.getShortUrl());
+                        break;
 
-                case SHORT_URL_ALREADY_TAKEN:
-                    httpStatus = HttpStatus.CONFLICT;
-                    message = String.format(
-                            "Short URL '%s' is already taken",
-                            shortUrlMapping.getShortUrl());
-                    break;
+                    default:
+                        httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+                        message = "An unknown error occurred";
+                        break;
+                }
 
-                default:
-                    httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-                    message = "An unknown error occurred";
-                    break;
-            }
-
-            return new ResponseEntity<>(
-                    new Status(shortUrlUserStatus, message),
-                    httpStatus);
-        });
+                return new ResponseEntity<>(
+                        new Status(shortUrlUserStatus, message),
+                        httpStatus);
+            });
     }
 
     @Override
     public Mono<ResponseEntity<StatusAndShortUrlMappingArray>>
     getMappings(ShortUrlMappingFilter shortUrlMappingFilter) {
         return shortUrlMappingService.getMappings(shortUrlMappingFilter)
-        .map(statusAndShortUrlMappingArray -> {
+            .map(statusAndShortUrlMappingArray -> {
+                ShortUrlMappingStatus shortUrlMappingStatus =
+                        statusAndShortUrlMappingArray.getStatus().getStatus();
 
-            ShortUrlMappingStatus shortUrlMappingStatus =
-                    statusAndShortUrlMappingArray.getStatus().getStatus();
+                HttpStatus httpStatus;
+                String message;
 
-            HttpStatus httpStatus;
-            String message;
+                switch (shortUrlMappingStatus) {
+                    case SUCCESS:
+                        httpStatus = HttpStatus.OK;
+                        message = "Mappings successfully retrieved";
+                        break;
 
-            switch (shortUrlMappingStatus) {
-                case SUCCESS:
-                    httpStatus = HttpStatus.OK;
-                    message = "Mappings successfully retrieved";
-                    break;
+                    case MISSING_USERNAME:
+                        httpStatus = HttpStatus.BAD_REQUEST;
+                        message = "A non-empty username must be specified";
+                        break;
 
-                case MISSING_USERNAME:
-                    httpStatus = HttpStatus.BAD_REQUEST;
-                    message = "A non-empty username must be specified";
-                    break;
+                    case MISSING_SHORT_URL:
+                        httpStatus = HttpStatus.BAD_REQUEST;
+                        message = "A non-empty short URL must be specified";
+                        break;
 
-                case MISSING_SHORT_URL:
-                    httpStatus = HttpStatus.BAD_REQUEST;
-                    message = "A non-empty short URL must be specified";
-                    break;
+                    case MISSING_LONG_URL:
+                        httpStatus = HttpStatus.BAD_REQUEST;
+                        message = "A non-empty long URL must be specified";
+                        break;
 
-                case MISSING_LONG_URL:
-                    httpStatus = HttpStatus.BAD_REQUEST;
-                    message = "A non-empty long URL must be specified";
-                    break;
+                    default:
+                        httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+                        message = "An unknown error occurred";
+                        break;
+                }
+                statusAndShortUrlMappingArray.getStatus().setMessage(message);
 
-                default:
-                    httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-                    message = "An unknown error occurred";
-                    break;
-            }
-            statusAndShortUrlMappingArray.getStatus().setMessage(message);
-
-            return new ResponseEntity<>(
-                    statusAndShortUrlMappingArray,
-                    httpStatus);
-        });
+                return new ResponseEntity<>(
+                        statusAndShortUrlMappingArray,
+                        httpStatus);
+            });
     }
 
     @Override
     public Mono<ResponseEntity<Status>>
     changeLongUrl(ShortUrlAndLongUrl shortUrlAndLongUrl) {
         return shortUrlMappingService.changeLongUrl(shortUrlAndLongUrl)
-        .map(status -> {
+            .map(status -> {
+                ShortUrlMappingStatus shortUrlMappingStatus = status.getStatus();
 
-            ShortUrlMappingStatus shortUrlMappingStatus = status.getStatus();
+                HttpStatus httpStatus;
+                String message;
 
-            HttpStatus httpStatus;
-            String message;
+                switch (shortUrlMappingStatus) {
+                    case MISSING_SHORT_URL:
+                        httpStatus = HttpStatus.BAD_REQUEST;
+                        message = "A non-empty short URL must be specified";
+                        break;
 
-            switch (shortUrlMappingStatus) {
-                case MISSING_SHORT_URL:
-                    httpStatus = HttpStatus.BAD_REQUEST;
-                    message = "A non-empty short URL must be specified";
-                    break;
+                    case MISSING_LONG_URL:
+                        httpStatus = HttpStatus.BAD_REQUEST;
+                        message = "A non-empty long URL must be specified";
+                        break;
 
-                case MISSING_LONG_URL:
-                    httpStatus = HttpStatus.BAD_REQUEST;
-                    message = "A non-empty long URL must be specified";
-                    break;
+                    case SHORT_URL_NOT_FOUND:
+                        httpStatus = HttpStatus.NOT_FOUND;
+                        message = String.format("Short URL '%s' was not found",
+                                shortUrlAndLongUrl.getShortUrl());
+                        break;
 
-                case SHORT_URL_NOT_FOUND:
-                    httpStatus = HttpStatus.NOT_FOUND;
-                    message = String.format("Short URL '%s' was not found",
-                            shortUrlAndLongUrl.getShortUrl());
-                    break;
+                    case SUCCESS:
+                        httpStatus = HttpStatus.OK;
+                        message = "Long URL successfully changed";
+                        break;
 
-                case SUCCESS:
-                    httpStatus = HttpStatus.OK;
-                    message = "Long URL successfully changed";
-                    break;
-
-                default:
-                    httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-                    message = "An unknown error occurred";
-                    break;
-            }
-            return new ResponseEntity<>(
-                    new Status(shortUrlMappingStatus, message),
-                    httpStatus);
-        });
+                    default:
+                        httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+                        message = "An unknown error occurred";
+                        break;
+                }
+                return new ResponseEntity<>(
+                        new Status(shortUrlMappingStatus, message),
+                        httpStatus);
+            });
     }
 
     @Override
     public Mono<ResponseEntity<Status>>
     deleteMappings(ShortUrlMappingFilter shortUrlMappingFilter) {
         return shortUrlMappingService.deleteMappings(shortUrlMappingFilter)
-        .map(status -> {
+            .map(status -> {
+                ShortUrlMappingStatus shortUrlMappingStatus = status.getStatus();
 
-            ShortUrlMappingStatus shortUrlMappingStatus = status.getStatus();
+                HttpStatus httpStatus;
+                String message;
 
-            HttpStatus httpStatus;
-            String message;
+                switch (shortUrlMappingStatus) {
+                    case SUCCESS:
+                        httpStatus = HttpStatus.OK;
+                        message = "Mappings successfully deleted";
+                        break;
 
-            switch (shortUrlMappingStatus) {
-                case SUCCESS:
-                    httpStatus = HttpStatus.OK;
-                    message = "Mappings successfully deleted";
-                    break;
+                    case MISSING_USERNAME:
+                        httpStatus = HttpStatus.BAD_REQUEST;
+                        message = "A non-empty username must be specified";
+                        break;
 
-                case MISSING_USERNAME:
-                    httpStatus = HttpStatus.BAD_REQUEST;
-                    message = "A non-empty username must be specified";
-                    break;
+                    case MISSING_SHORT_URL:
+                        httpStatus = HttpStatus.BAD_REQUEST;
+                        message = "A non-empty short URL must be specified";
+                        break;
 
-                case MISSING_SHORT_URL:
-                    httpStatus = HttpStatus.BAD_REQUEST;
-                    message = "A non-empty short URL must be specified";
-                    break;
+                    case MISSING_LONG_URL:
+                        httpStatus = HttpStatus.BAD_REQUEST;
+                        message = "A non-empty long URL must be specified";
+                        break;
 
-                case MISSING_LONG_URL:
-                    httpStatus = HttpStatus.BAD_REQUEST;
-                    message = "A non-empty long URL must be specified";
-                    break;
+                    default:
+                        httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+                        message = "An unknown error occurred";
+                        break;
+                }
+                status.setMessage(message);
 
-                default:
-                    httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-                    message = "An unknown error occurred";
-                    break;
-            }
-            status.setMessage(message);
-
-            return new ResponseEntity<>(status, httpStatus);
-        });
+                return new ResponseEntity<>(status, httpStatus);
+            });
     }
 
     // ------------------------------------------------------------------------
