@@ -10,7 +10,6 @@ import com.richarddklein.shorturlcommonlibrary.service.shorturlmappingservice.en
 import com.richarddklein.shorturlmappingservice.service.ShortUrlMappingService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
@@ -32,9 +31,9 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
 
     @Override
     public ResponseEntity<Status>
-    initializeShortUrlMappingRepository(ServerHttpRequest request) {
+    initializeShortUrlMappingRepository() {
         ShortUrlMappingStatus shortUrlMappingStatus = shortUrlMappingService
-                .initializeShortUrlMappingRepository(request);
+                .initializeShortUrlMappingRepository();
 
         HttpStatus httpStatus;
         String message;

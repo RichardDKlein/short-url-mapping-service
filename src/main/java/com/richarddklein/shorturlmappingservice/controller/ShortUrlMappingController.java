@@ -11,7 +11,6 @@ import com.richarddklein.shorturlcommonlibrary.service.shorturlmappingservice.dt
 import com.richarddklein.shorturlcommonlibrary.service.shorturlmappingservice.dto.StatusAndShortUrlMappingArray;
 import com.richarddklein.shorturlcommonlibrary.service.shorturlmappingservice.entity.ShortUrlMapping;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -19,7 +18,7 @@ import reactor.core.publisher.Mono;
 public interface ShortUrlMappingController {
     @PostMapping("/initialize-repository")
     ResponseEntity<Status>
-    initializeShortUrlMappingRepository(ServerHttpRequest request);
+    initializeShortUrlMappingRepository();
 
     @PostMapping("/create-mapping")
     Mono<ResponseEntity<Status>>

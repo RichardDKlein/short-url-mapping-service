@@ -9,7 +9,6 @@ import com.richarddklein.shorturlcommonlibrary.environment.HostUtils;
 import com.richarddklein.shorturlcommonlibrary.service.shorturlmappingservice.dto.*;
 import com.richarddklein.shorturlcommonlibrary.service.shorturlmappingservice.entity.ShortUrlMapping;
 import com.richarddklein.shorturlmappingservice.dao.ShortUrlMappingDao;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -36,8 +35,8 @@ public class ShortUrlMappingServiceImpl implements ShortUrlMappingService {
     // synchronous logic will work just fine.
     @Override
     public ShortUrlMappingStatus
-    initializeShortUrlMappingRepository(ServerHttpRequest request) {
-        if (!hostUtils.isRunningLocally(request)) {
+    initializeShortUrlMappingRepository() {
+        if (!hostUtils.isRunningLocally()) {
             return ShortUrlMappingStatus.NOT_ON_LOCAL_MACHINE;
         }
 
