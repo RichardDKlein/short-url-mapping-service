@@ -9,6 +9,7 @@ import com.richarddklein.shorturlcommonlibrary.environment.HostUtils;
 import com.richarddklein.shorturlcommonlibrary.service.shorturlmappingservice.dto.*;
 import com.richarddklein.shorturlcommonlibrary.service.shorturlmappingservice.entity.ShortUrlMapping;
 import com.richarddklein.shorturlcommonlibrary.service.status.ShortUrlStatus;
+import com.richarddklein.shorturlcommonlibrary.service.status.Status;
 import com.richarddklein.shorturlmappingservice.dao.ShortUrlMappingDao;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -75,17 +76,17 @@ public class ShortUrlMappingServiceImpl implements ShortUrlMappingService {
 
         if (username == null || username.isBlank()) {
             return Mono.just(new StatusAndShortUrlMappingArray(
-                    new Status(ShortUrlMappingStatus.MISSING_USERNAME),
+                    new Status(MISSING_USERNAME),
                     null));
         }
         if (shortUrl == null || shortUrl.isBlank()) {
             return Mono.just(new StatusAndShortUrlMappingArray(
-                    new Status(ShortUrlMappingStatus.MISSING_SHORT_URL),
+                    new Status(MISSING_SHORT_URL),
                     null));
         }
         if (longUrl == null || longUrl.isBlank()) {
             return Mono.just(new StatusAndShortUrlMappingArray(
-                    new Status(ShortUrlMappingStatus.MISSING_LONG_URL),
+                    new Status(MISSING_LONG_URL),
                     null));
         }
         return shortUrlMappingDao.getMappings(shortUrlMappingFilter);
@@ -98,10 +99,10 @@ public class ShortUrlMappingServiceImpl implements ShortUrlMappingService {
         String longUrl = shortUrlAndLongUrl.getLongUrl();
 
         if (shortUrl == null || shortUrl.isBlank()) {
-            return Mono.just(new Status(ShortUrlMappingStatus.MISSING_SHORT_URL));
+            return Mono.just(new Status(MISSING_SHORT_URL));
         }
         if (longUrl == null || longUrl.isBlank()) {
-            return Mono.just(new Status(ShortUrlMappingStatus.MISSING_LONG_URL));
+            return Mono.just(new Status(MISSING_LONG_URL));
         }
         return shortUrlMappingDao.changeLongUrl(shortUrlAndLongUrl).map(Status::new);
     }
@@ -114,13 +115,13 @@ public class ShortUrlMappingServiceImpl implements ShortUrlMappingService {
         String longUrl = shortUrlMappingFilter.getLongUrl();
 
         if (username == null || username.isBlank()) {
-            return Mono.just(new Status(ShortUrlMappingStatus.MISSING_USERNAME));
+            return Mono.just(new Status(MISSING_USERNAME));
         }
         if (shortUrl == null || shortUrl.isBlank()) {
-            return Mono.just(new Status(ShortUrlMappingStatus.MISSING_SHORT_URL));
+            return Mono.just(new Status(MISSING_SHORT_URL));
         }
         if (longUrl == null || longUrl.isBlank()) {
-            return Mono.just(new Status(ShortUrlMappingStatus.MISSING_LONG_URL));
+            return Mono.just(new Status(MISSING_LONG_URL));
         }
         return shortUrlMappingDao.deleteMappings(shortUrlMappingFilter);
     }
