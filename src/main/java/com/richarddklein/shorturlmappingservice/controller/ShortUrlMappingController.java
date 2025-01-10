@@ -7,9 +7,9 @@ package com.richarddklein.shorturlmappingservice.controller;
 
 import com.richarddklein.shorturlcommonlibrary.service.shorturlmappingservice.dto.ShortUrlAndLongUrl;
 import com.richarddklein.shorturlcommonlibrary.service.shorturlmappingservice.dto.ShortUrlMappingFilter;
-import com.richarddklein.shorturlcommonlibrary.service.shorturlmappingservice.dto.Status;
 import com.richarddklein.shorturlcommonlibrary.service.shorturlmappingservice.dto.StatusAndShortUrlMappingArray;
 import com.richarddklein.shorturlcommonlibrary.service.shorturlmappingservice.entity.ShortUrlMapping;
+import com.richarddklein.shorturlcommonlibrary.service.status.Status;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;

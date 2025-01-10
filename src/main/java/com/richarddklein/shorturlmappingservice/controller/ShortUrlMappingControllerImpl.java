@@ -7,6 +7,8 @@ package com.richarddklein.shorturlmappingservice.controller;
 
 import com.richarddklein.shorturlcommonlibrary.service.shorturlmappingservice.dto.*;
 import com.richarddklein.shorturlcommonlibrary.service.shorturlmappingservice.entity.ShortUrlMapping;
+import com.richarddklein.shorturlcommonlibrary.service.status.ShortUrlStatus;
+import com.richarddklein.shorturlcommonlibrary.service.status.Status;
 import com.richarddklein.shorturlmappingservice.service.ShortUrlMappingService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,29 +34,28 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
     @Override
     public ResponseEntity<Status>
     initializeShortUrlMappingRepository() {
-        ShortUrlMappingStatus shortUrlMappingStatus = shortUrlMappingService
+        ShortUrlStatus shortUrlMappingStatus = shortUrlMappingService
                 .initializeShortUrlMappingRepository();
 
         HttpStatus httpStatus;
         String message;
 
         switch (shortUrlMappingStatus) {
-            case SUCCESS:
+            case SUCCESS -> {
                 httpStatus = HttpStatus.OK;
                 message = "Initialization of Short URL Mapping table "
                         + "completed successfully";
-                break;
-
-            case NOT_ON_LOCAL_MACHINE:
+            }
+            case NOT_ON_LOCAL_MACHINE -> {
                 httpStatus = HttpStatus.FORBIDDEN;
                 message = "Initialization of the Short URL Mapping "
                         + "table can be done only when the service is "
                         + "running on your local machine";
-                break;
-
-            default:
+            }
+            default -> {
                 httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
                 message = "An unknown error occurred";
+            }
         }
 
         return new ResponseEntity<>(
@@ -71,37 +72,32 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
                 String message;
 
                 switch (shortUrlUserStatus) {
-                    case SUCCESS:
+                    case SUCCESS -> {
                         httpStatus = HttpStatus.OK;
                         message = "Mapping successfully created";
-                        break;
-
-                    case MISSING_USERNAME:
+                    }
+                    case MISSING_USERNAME -> {
                         httpStatus = HttpStatus.BAD_REQUEST;
                         message = "A non-empty username must be specified";
-                        break;
-
-                    case MISSING_SHORT_URL:
+                    }
+                    case MISSING_SHORT_URL -> {
                         httpStatus = HttpStatus.BAD_REQUEST;
                         message = "A non-empty short URL must be specified";
-                        break;
-
-                    case MISSING_LONG_URL:
+                    }
+                    case MISSING_LONG_URL -> {
                         httpStatus = HttpStatus.BAD_REQUEST;
                         message = "A non-empty long URL must be specified";
-                        break;
-
-                    case SHORT_URL_ALREADY_TAKEN:
+                    }
+                    case SHORT_URL_ALREADY_TAKEN -> {
                         httpStatus = HttpStatus.CONFLICT;
                         message = String.format(
                                 "Short URL '%s' is already taken",
                                 shortUrlMapping.getShortUrl());
-                        break;
-
-                    default:
+                    }
+                    default -> {
                         httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
                         message = "An unknown error occurred";
-                        break;
+                    }
                 }
 
                 return new ResponseEntity<>(
@@ -115,37 +111,33 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
     getMappings(ShortUrlMappingFilter shortUrlMappingFilter) {
         return shortUrlMappingService.getMappings(shortUrlMappingFilter)
             .map(statusAndShortUrlMappingArray -> {
-                ShortUrlMappingStatus shortUrlMappingStatus =
+                ShortUrlStatus shortUrlMappingStatus =
                         statusAndShortUrlMappingArray.getStatus().getStatus();
 
                 HttpStatus httpStatus;
                 String message;
 
                 switch (shortUrlMappingStatus) {
-                    case SUCCESS:
+                    case SUCCESS -> {
                         httpStatus = HttpStatus.OK;
                         message = "Mappings successfully retrieved";
-                        break;
-
-                    case MISSING_USERNAME:
+                    }
+                    case MISSING_USERNAME -> {
                         httpStatus = HttpStatus.BAD_REQUEST;
                         message = "A non-empty username must be specified";
-                        break;
-
-                    case MISSING_SHORT_URL:
+                    }
+                    case MISSING_SHORT_URL -> {
                         httpStatus = HttpStatus.BAD_REQUEST;
                         message = "A non-empty short URL must be specified";
-                        break;
-
-                    case MISSING_LONG_URL:
+                    }
+                    case MISSING_LONG_URL -> {
                         httpStatus = HttpStatus.BAD_REQUEST;
                         message = "A non-empty long URL must be specified";
-                        break;
-
-                    default:
+                    }
+                    default -> {
                         httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
                         message = "An unknown error occurred";
-                        break;
+                    }
                 }
                 statusAndShortUrlMappingArray.getStatus().setMessage(message);
 
@@ -160,38 +152,35 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
     changeLongUrl(ShortUrlAndLongUrl shortUrlAndLongUrl) {
         return shortUrlMappingService.changeLongUrl(shortUrlAndLongUrl)
             .map(status -> {
-                ShortUrlMappingStatus shortUrlMappingStatus = status.getStatus();
+                ShortUrlStatus shortUrlMappingStatus = status.getStatus();
 
                 HttpStatus httpStatus;
                 String message;
 
                 switch (shortUrlMappingStatus) {
-                    case MISSING_SHORT_URL:
+                    case MISSING_SHORT_URL -> {
                         httpStatus = HttpStatus.BAD_REQUEST;
                         message = "A non-empty short URL must be specified";
-                        break;
-
-                    case MISSING_LONG_URL:
+                    }
+                    case MISSING_LONG_URL -> {
                         httpStatus = HttpStatus.BAD_REQUEST;
                         message = "A non-empty long URL must be specified";
-                        break;
-
-                    case SHORT_URL_NOT_FOUND:
+                    }
+                    case SHORT_URL_NOT_FOUND -> {
                         httpStatus = HttpStatus.NOT_FOUND;
                         message = String.format("Short URL '%s' was not found",
                                 shortUrlAndLongUrl.getShortUrl());
-                        break;
-
-                    case SUCCESS:
+                    }
+                    case SUCCESS -> {
                         httpStatus = HttpStatus.OK;
                         message = "Long URL successfully changed";
-                        break;
-
-                    default:
+                    }
+                    default -> {
                         httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
                         message = "An unknown error occurred";
-                        break;
+                    }
                 }
+
                 return new ResponseEntity<>(
                         new Status(shortUrlMappingStatus, message),
                         httpStatus);
@@ -203,37 +192,34 @@ public class ShortUrlMappingControllerImpl implements ShortUrlMappingController 
     deleteMappings(ShortUrlMappingFilter shortUrlMappingFilter) {
         return shortUrlMappingService.deleteMappings(shortUrlMappingFilter)
             .map(status -> {
-                ShortUrlMappingStatus shortUrlMappingStatus = status.getStatus();
+                ShortUrlStatus shortUrlMappingStatus = status.getStatus();
 
                 HttpStatus httpStatus;
                 String message;
 
                 switch (shortUrlMappingStatus) {
-                    case SUCCESS:
+                    case SUCCESS -> {
                         httpStatus = HttpStatus.OK;
                         message = "Mappings successfully deleted";
-                        break;
-
-                    case MISSING_USERNAME:
+                    }
+                    case MISSING_USERNAME -> {
                         httpStatus = HttpStatus.BAD_REQUEST;
                         message = "A non-empty username must be specified";
-                        break;
-
-                    case MISSING_SHORT_URL:
+                    }
+                    case MISSING_SHORT_URL -> {
                         httpStatus = HttpStatus.BAD_REQUEST;
                         message = "A non-empty short URL must be specified";
-                        break;
-
-                    case MISSING_LONG_URL:
+                    }
+                    case MISSING_LONG_URL -> {
                         httpStatus = HttpStatus.BAD_REQUEST;
                         message = "A non-empty long URL must be specified";
-                        break;
-
-                    default:
+                    }
+                    default -> {
                         httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
                         message = "An unknown error occurred";
-                        break;
+                    }
                 }
+
                 status.setMessage(message);
 
                 return new ResponseEntity<>(status, httpStatus);

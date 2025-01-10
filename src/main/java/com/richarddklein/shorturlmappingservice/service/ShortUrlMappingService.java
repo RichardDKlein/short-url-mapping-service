@@ -7,13 +7,15 @@ package com.richarddklein.shorturlmappingservice.service;
 
 import com.richarddklein.shorturlcommonlibrary.service.shorturlmappingservice.dto.*;
 import com.richarddklein.shorturlcommonlibrary.service.shorturlmappingservice.entity.ShortUrlMapping;
+import com.richarddklein.shorturlcommonlibrary.service.status.ShortUrlStatus;
+import com.richarddklein.shorturlcommonlibrary.service.status.Status;
 import reactor.core.publisher.Mono;
 
 public interface ShortUrlMappingService {
-    ShortUrlMappingStatus
+    ShortUrlStatus
     initializeShortUrlMappingRepository();
 
-    Mono<ShortUrlMappingStatus>
+    Mono<ShortUrlStatus>
     createMapping(ShortUrlMapping shortUrlMapping);
 
     Mono<StatusAndShortUrlMappingArray>

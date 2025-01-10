@@ -8,9 +8,12 @@ package com.richarddklein.shorturlmappingservice.service;
 import com.richarddklein.shorturlcommonlibrary.environment.HostUtils;
 import com.richarddklein.shorturlcommonlibrary.service.shorturlmappingservice.dto.*;
 import com.richarddklein.shorturlcommonlibrary.service.shorturlmappingservice.entity.ShortUrlMapping;
+import com.richarddklein.shorturlcommonlibrary.service.status.ShortUrlStatus;
 import com.richarddklein.shorturlmappingservice.dao.ShortUrlMappingDao;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+
+import static com.richarddklein.shorturlcommonlibrary.service.status.ShortUrlStatus.*;
 
 @Service
 public class ShortUrlMappingServiceImpl implements ShortUrlMappingService {
@@ -34,31 +37,31 @@ public class ShortUrlMappingServiceImpl implements ShortUrlMappingService {
     // need to use reactive (asynchronous) programming techniques here. Simple
     // synchronous logic will work just fine.
     @Override
-    public ShortUrlMappingStatus
+    public ShortUrlStatus
     initializeShortUrlMappingRepository() {
         if (!hostUtils.isRunningLocally()) {
-            return ShortUrlMappingStatus.NOT_ON_LOCAL_MACHINE;
+            return NOT_ON_LOCAL_MACHINE;
         }
 
         shortUrlMappingDao.initializeShortUrlMappingRepository();
-        return ShortUrlMappingStatus.SUCCESS;
+        return SUCCESS;
     }
 
     @Override
-    public Mono<ShortUrlMappingStatus>
+    public Mono<ShortUrlStatus>
     createMapping(ShortUrlMapping shortUrlMapping) {
         String username = shortUrlMapping.getUsername();
         String shortUrl = shortUrlMapping.getShortUrl();
         String longUrl = shortUrlMapping.getLongUrl();
 
         if (username == null || username.isBlank()) {
-            return Mono.just(ShortUrlMappingStatus.MISSING_USERNAME);
+            return Mono.just(MISSING_USERNAME);
         }
         if (shortUrl == null || shortUrl.isBlank()) {
-            return Mono.just(ShortUrlMappingStatus.MISSING_SHORT_URL);
+            return Mono.just(MISSING_SHORT_URL);
         }
         if (longUrl == null || longUrl.isBlank()) {
-            return Mono.just(ShortUrlMappingStatus.MISSING_LONG_URL);
+            return Mono.just(MISSING_LONG_URL);
         }
         return shortUrlMappingDao.createMapping(shortUrlMapping);
     }

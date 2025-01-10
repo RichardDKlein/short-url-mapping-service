@@ -3,12 +3,10 @@
  * (Copyright 2024 by Richard Klein)
  */
 
-package com.richarddklein.shorturlmappingservice.config;
+package com.richarddklein.shorturlmappingservice.service;
 
 import com.richarddklein.shorturlcommonlibrary.environment.HostUtils;
 import com.richarddklein.shorturlmappingservice.dao.ShortUrlMappingDao;
-import com.richarddklein.shorturlmappingservice.service.ShortUrlMappingService;
-import com.richarddklein.shorturlmappingservice.service.ShortUrlMappingServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -12,6 +12,8 @@ import java.util.List;
 import com.richarddklein.shorturlcommonlibrary.environment.ParameterStoreAccessor;
 import com.richarddklein.shorturlcommonlibrary.service.shorturlmappingservice.dto.*;
 import com.richarddklein.shorturlcommonlibrary.service.shorturlmappingservice.entity.ShortUrlMapping;
+import com.richarddklein.shorturlcommonlibrary.service.status.ShortUrlStatus;
+import com.richarddklein.shorturlcommonlibrary.service.status.Status;
 import com.richarddklein.shorturlmappingservice.exception.ShortUrlNotFoundException;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
@@ -25,6 +27,8 @@ import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedExce
 import software.amazon.awssdk.services.dynamodb.model.ProjectionType;
 import software.amazon.awssdk.services.dynamodb.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.dynamodb.waiters.DynamoDbWaiter;
+
+import static com.richarddklein.shorturlcommonlibrary.service.status.ShortUrlStatus.*;
 
 /**
  * The production implementation of the Short URL Mapping DAO interface.
@@ -114,7 +118,7 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
     }
 
     @Override
-    public Mono<ShortUrlMappingStatus>
+    public Mono<ShortUrlStatus>
     createMapping(ShortUrlMapping shortUrlMapping) {
         return Mono.fromFuture(
             shortUrlMappingTable.putItem(req -> req
@@ -123,9 +127,9 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
                             .expression("attribute_not_exists(shortUrl)")
                             .build())
             ))
-            .then(Mono.just(ShortUrlMappingStatus.SUCCESS))
+            .then(Mono.just(SUCCESS))
             .onErrorResume(ConditionalCheckFailedException.class, e ->
-                    Mono.just(ShortUrlMappingStatus.SHORT_URL_ALREADY_TAKEN));
+                    Mono.just(SHORT_URL_ALREADY_TAKEN));
     }
 
     @Override
@@ -151,18 +155,18 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
             })
             .collectList()
             .map(filteredMappings -> new StatusAndShortUrlMappingArray(
-                    new Status(ShortUrlMappingStatus.SUCCESS),
+                    new Status(SUCCESS),
                     filteredMappings))
             .onErrorResume(e -> {
                 System.out.println("====> " + e.getMessage());
                 return Mono.just(new StatusAndShortUrlMappingArray(
-                        new Status(ShortUrlMappingStatus.UNKNOWN_ERROR),
+                        new Status(UNKNOWN_ERROR),
                         Collections.emptyList()));
             });
     }
 
     @Override
-    public Mono<ShortUrlMappingStatus>
+    public Mono<ShortUrlStatus>
     changeLongUrl(ShortUrlAndLongUrl shortUrlAndLongUrl) {
         ShortUrlMappingFilter shortUrlMappingFilter = new ShortUrlMappingFilter(
                 "*", shortUrlAndLongUrl.getShortUrl(), "*");
@@ -173,14 +177,14 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
                         statusAndShortUrlMappings.getShortUrlMappings();
 
                 if (shortUrlMappings.isEmpty()) {
-                    return Mono.just(ShortUrlMappingStatus.SHORT_URL_NOT_FOUND);
+                    return Mono.just(SHORT_URL_NOT_FOUND);
                 }
 
                 ShortUrlMapping shortUrlMapping = shortUrlMappings.getFirst();
                 shortUrlMapping.setLongUrl(shortUrlAndLongUrl.getLongUrl());
 
                 return updateShortUrlMapping(shortUrlMapping)
-                    .map(updatedShortUrlMapping -> ShortUrlMappingStatus.SUCCESS);
+                    .map(updatedShortUrlMapping -> SUCCESS);
             })
             .retryWhen(Retry.backoff(5, Duration.ofSeconds(1))
                     .filter(e -> e instanceof ConditionalCheckFailedException)
@@ -190,8 +194,8 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
             .onErrorResume(e -> {
                 System.out.println("====> changeLongUrl() failed: " + e.getMessage());
                 return (e instanceof ShortUrlNotFoundException)
-                        ? Mono.just(ShortUrlMappingStatus.SHORT_URL_NOT_FOUND)
-                        : Mono.just(ShortUrlMappingStatus.UNKNOWN_ERROR);
+                        ? Mono.just(SHORT_URL_NOT_FOUND)
+                        : Mono.just(UNKNOWN_ERROR);
             });
     }
 
@@ -217,11 +221,11 @@ public class ShortUrlMappingDaoImpl implements ShortUrlMappingDao {
                 return matches;
             })
             .flatMap(this::deleteShortUrlMapping)
-            .then(Mono.just(new Status(ShortUrlMappingStatus.SUCCESS)))
+            .then(Mono.just(new Status(SUCCESS)))
             .onErrorResume(e -> {
                 System.out.println("====> " + e.getMessage());
                 System.out.println("====> deleteMappings() failed: " + e.getMessage());
-                return Mono.just(new Status(ShortUrlMappingStatus.UNKNOWN_ERROR));
+                return Mono.just(new Status(UNKNOWN_ERROR));
             });
     }
 
